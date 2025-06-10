@@ -29,14 +29,14 @@ extern CCube g_centerloc;
 extern GLuint g_shadingProg;
 extern glm::vec3 g_eyeloc;
 extern CLight g_light;
-extern CLight g_capSpotLight;
-extern CLight g_cupSpotLight;
-extern CLight g_knotSpotLight;
+//extern CLight g_capSpotLight;
+//extern CLight g_cupSpotLight;
+//extern CLight g_knotSpotLight;
 
 extern CMaterial g_matWaterGreen;
 extern CSphere  g_sphere; 
 
-extern std::array<CButton, 4> g_button;
+//extern std::array<CButton, 4> g_button;
 extern bool g_isNpr;
 extern bool g_isGradient;
 extern float g_colorTime;
@@ -239,10 +239,10 @@ void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
 		{
             g_bCamRoting = true;
             // 啟動或關閉按鈕們
-            if (g_button[0].handleClick((float)xpos, height - (float)ypos)) {  }
+            /*if (g_button[0].handleClick((float)xpos, height - (float)ypos)) {  }
             if (g_button[1].handleClick((float)xpos, height - (float)ypos)) {  }
             if (g_button[2].handleClick((float)xpos, height - (float)ypos)) {  }
-            if (g_button[3].handleClick((float)xpos, height - (float)ypos)) {  }
+            if (g_button[3].handleClick((float)xpos, height - (float)ypos)) {  }*/
 		}
         else if (action == GLFW_RELEASE)
         {

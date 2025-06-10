@@ -13,5 +13,173 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="common">
+      <UniqueIdentifier>{218b1c8b-7dad-4ce9-a494-2d879b3d09e7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="models">
+      <UniqueIdentifier>{b475c4fb-4061-44f4-8b40-a5c6da63de2a}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="common\arcball.cpp">
+      <Filter>common</Filter>
+    </ClCompile>
+    <ClCompile Include="common\CButton.cpp">
+      <Filter>common</Filter>
+    </ClCompile>
+    <ClCompile Include="common\CCamera.cpp">
+      <Filter>common</Filter>
+    </ClCompile>
+    <ClCompile Include="common\CLight.cpp">
+      <Filter>common</Filter>
+    </ClCompile>
+    <ClCompile Include="common\CMaterial.cpp">
+      <Filter>common</Filter>
+    </ClCompile>
+    <ClCompile Include="common\CObjLoader.cpp">
+      <Filter>common</Filter>
+    </ClCompile>
+    <ClCompile Include="common\CShaderPool.cpp">
+      <Filter>common</Filter>
+    </ClCompile>
+    <ClCompile Include="common\CSprite2D.cpp">
+      <Filter>common</Filter>
+    </ClCompile>
+    <ClCompile Include="common\initShader.cpp">
+      <Filter>common</Filter>
+    </ClCompile>
+    <ClCompile Include="common\wmhandler.cpp">
+      <Filter>common</Filter>
+    </ClCompile>
+    <ClCompile Include="models\CBottle.cpp">
+      <Filter>models</Filter>
+    </ClCompile>
+    <ClCompile Include="models\CBox.cpp">
+      <Filter>models</Filter>
+    </ClCompile>
+    <ClCompile Include="models\CCapsule.cpp">
+      <Filter>models</Filter>
+    </ClCompile>
+    <ClCompile Include="models\CCube.cpp">
+      <Filter>models</Filter>
+    </ClCompile>
+    <ClCompile Include="models\CCup.cpp">
+      <Filter>models</Filter>
+    </ClCompile>
+    <ClCompile Include="models\CCylinder.cpp">
+      <Filter>models</Filter>
+    </ClCompile>
+    <ClCompile Include="models\CDonut.cpp">
+      <Filter>models</Filter>
+    </ClCompile>
+    <ClCompile Include="models\CObjModel.cpp">
+      <Filter>models</Filter>
+    </ClCompile>
+    <ClCompile Include="models\CQuad.cpp">
+      <Filter>models</Filter>
+    </ClCompile>
+    <ClCompile Include="models\CShape.cpp">
+      <Filter>models</Filter>
+    </ClCompile>
+    <ClCompile Include="models\CSphere.cpp">
+      <Filter>models</Filter>
+    </ClCompile>
+    <ClCompile Include="models\CTeapot.cpp">
+      <Filter>models</Filter>
+    </ClCompile>
+    <ClCompile Include="models\CTorusKnot.cpp">
+      <Filter>models</Filter>
+    </ClCompile>
+    <ClCompile Include="3DShowRoom.cpp">
+      <Filter>來源檔案</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="common\arcball.h">
+      <Filter>common</Filter>
+    </ClInclude>
+    <ClInclude Include="common\CButton.h">
+      <Filter>common</Filter>
+    </ClInclude>
+    <ClInclude Include="common\CCamera.h">
+      <Filter>common</Filter>
+    </ClInclude>
+    <ClInclude Include="common\CLight.h">
+      <Filter>common</Filter>
+    </ClInclude>
+    <ClInclude Include="common\CMaterial.h">
+      <Filter>common</Filter>
+    </ClInclude>
+    <ClInclude Include="common\CObjLoader.h">
+      <Filter>common</Filter>
+    </ClInclude>
+    <ClInclude Include="common\CShaderPool.h">
+      <Filter>common</Filter>
+    </ClInclude>
+    <ClInclude Include="common\CSprite2D.h">
+      <Filter>common</Filter>
+    </ClInclude>
+    <ClInclude Include="common\initshader.h">
+      <Filter>common</Filter>
+    </ClInclude>
+    <ClInclude Include="common\typedefs.h">
+      <Filter>common</Filter>
+    </ClInclude>
+    <ClInclude Include="common\wmhandler.h">
+      <Filter>common</Filter>
+    </ClInclude>
+    <ClInclude Include="models\CBottle.h">
+      <Filter>models</Filter>
+    </ClInclude>
+    <ClInclude Include="models\CBox.h">
+      <Filter>models</Filter>
+    </ClInclude>
+    <ClInclude Include="models\CCapsule.h">
+      <Filter>models</Filter>
+    </ClInclude>
+    <ClInclude Include="models\CCube.h">
+      <Filter>models</Filter>
+    </ClInclude>
+    <ClInclude Include="models\CCup.h">
+      <Filter>models</Filter>
+    </ClInclude>
+    <ClInclude Include="models\CCylinder.h">
+      <Filter>models</Filter>
+    </ClInclude>
+    <ClInclude Include="models\CDonut.h">
+      <Filter>models</Filter>
+    </ClInclude>
+    <ClInclude Include="models\CObjModel.h">
+      <Filter>models</Filter>
+    </ClInclude>
+    <ClInclude Include="models\CQuad.h">
+      <Filter>models</Filter>
+    </ClInclude>
+    <ClInclude Include="models\CShape.h">
+      <Filter>models</Filter>
+    </ClInclude>
+    <ClInclude Include="models\CSphere.h">
+      <Filter>models</Filter>
+    </ClInclude>
+    <ClInclude Include="models\CTeapot.h">
+      <Filter>models</Filter>
+    </ClInclude>
+    <ClInclude Include="models\CTorusKnot.h">
+      <Filter>models</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="f_shader.glsl">
+      <Filter>來源檔案</Filter>
+    </None>
+    <None Include="f_uishader.glsl">
+      <Filter>來源檔案</Filter>
+    </None>
+    <None Include="v_shader.glsl">
+      <Filter>來源檔案</Filter>
+    </None>
+    <None Include="v_uishader.glsl">
+      <Filter>來源檔案</Filter>
+    </None>
   </ItemGroup>
 </Project>

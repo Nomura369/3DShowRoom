@@ -17,7 +17,6 @@
       <Configuration>Release</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
-
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
@@ -53,28 +52,28 @@
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
-
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
-  <ImportGroup Label="Shared" >
+  <ImportGroup Label="Shared">
   </ImportGroup>
-    <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-      <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    </ImportGroup>
-    <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-      <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    </ImportGroup>
-    <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-      <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    </ImportGroup>
-    <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-      <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    </ImportGroup>
-
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);$(ProjectDir)OpenGLLibraries</IncludePath>
+    <LibraryPath>$(VC_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(ProjectDir)lib</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -85,7 +84,6 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
-
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -96,6 +94,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>glew32.lib;glfw3.lib;opengl32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -142,8 +141,64 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
-
-  <ItemGroup></ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="common\arcball.cpp" />
+    <ClCompile Include="common\CButton.cpp" />
+    <ClCompile Include="common\CCamera.cpp" />
+    <ClCompile Include="common\CLight.cpp" />
+    <ClCompile Include="common\CMaterial.cpp" />
+    <ClCompile Include="common\CObjLoader.cpp" />
+    <ClCompile Include="common\CShaderPool.cpp" />
+    <ClCompile Include="common\CSprite2D.cpp" />
+    <ClCompile Include="common\initShader.cpp" />
+    <ClCompile Include="common\wmhandler.cpp" />
+    <ClCompile Include="models\CBottle.cpp" />
+    <ClCompile Include="models\CBox.cpp" />
+    <ClCompile Include="models\CCapsule.cpp" />
+    <ClCompile Include="models\CCube.cpp" />
+    <ClCompile Include="models\CCup.cpp" />
+    <ClCompile Include="models\CCylinder.cpp" />
+    <ClCompile Include="models\CDonut.cpp" />
+    <ClCompile Include="models\CObjModel.cpp" />
+    <ClCompile Include="models\CQuad.cpp" />
+    <ClCompile Include="models\CShape.cpp" />
+    <ClCompile Include="models\CSphere.cpp" />
+    <ClCompile Include="models\CTeapot.cpp" />
+    <ClCompile Include="models\CTorusKnot.cpp" />
+    <ClCompile Include="3DShowRoom.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="common\arcball.h" />
+    <ClInclude Include="common\CButton.h" />
+    <ClInclude Include="common\CCamera.h" />
+    <ClInclude Include="common\CLight.h" />
+    <ClInclude Include="common\CMaterial.h" />
+    <ClInclude Include="common\CObjLoader.h" />
+    <ClInclude Include="common\CShaderPool.h" />
+    <ClInclude Include="common\CSprite2D.h" />
+    <ClInclude Include="common\initshader.h" />
+    <ClInclude Include="common\typedefs.h" />
+    <ClInclude Include="common\wmhandler.h" />
+    <ClInclude Include="models\CBottle.h" />
+    <ClInclude Include="models\CBox.h" />
+    <ClInclude Include="models\CCapsule.h" />
+    <ClInclude Include="models\CCube.h" />
+    <ClInclude Include="models\CCup.h" />
+    <ClInclude Include="models\CCylinder.h" />
+    <ClInclude Include="models\CDonut.h" />
+    <ClInclude Include="models\CObjModel.h" />
+    <ClInclude Include="models\CQuad.h" />
+    <ClInclude Include="models\CShape.h" />
+    <ClInclude Include="models\CSphere.h" />
+    <ClInclude Include="models\CTeapot.h" />
+    <ClInclude Include="models\CTorusKnot.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="f_shader.glsl" />
+    <None Include="f_uishader.glsl" />
+    <None Include="v_shader.glsl" />
+    <None Include="v_uishader.glsl" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
