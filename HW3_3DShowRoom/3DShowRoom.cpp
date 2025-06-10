@@ -58,10 +58,12 @@ GLuint g_shadingProg;
 GLuint g_uiShadingProg;
 
 // 全域光源 (位置在 5,5,0)
-CLight g_light(glm::vec3(5.0f, 5.0f, 0.0f)); // 預設為點光源
-//CLight g_capSpotLight(glm::vec3(10.0f, 10.0f, -10.0f), glm::vec3(8.0f, 0.5f, -8.0f)); // 照亮 capsule 模型
-//CLight g_cupSpotLight(glm::vec3(-10.0f, 10.0f, -10.0f), glm::vec3(-8.0f, 0.5f, -8.0f)); // 照亮 cup 模型
-//CLight g_knotSpotLight(glm::vec3(0.0f, 10.0f, 10.0f), glm::vec3(0.0f, 0.5f, 8.0f)); // 照亮 knot 模型
+CLight g_light1(glm::vec3(5.0f, 10.0f, 0.0f)); // 預設為點光源，每個房間一盞
+CLight g_light2(glm::vec3(-25.1f, 10.0f, 0.0f));
+CLight g_light3(glm::vec3(-50.2f, 10.0f, 0.0f));
+CLight g_light4(glm::vec3(5.0f, 10.0f, -30.1f));
+CLight g_light5(glm::vec3(-25.1f, 10.0f, -30.1f));
+CLight g_light6(glm::vec3(-50.2f, 10.0f, -30.1f));
 //bool g_bOnBtnActive[4] = { false, false, false, false }; // 判斷按鈕們是否被按下
 
 // 全域材質（可依模型分別設定）
@@ -109,7 +111,18 @@ void loadScene(void)
     g_uiShadingProg = CShaderPool::getInstance().getShader("v_uishader.glsl", "f_uishader.glsl");
     
     // 設定燈光
-    g_light.setShaderID(g_shadingProg, "uLight[0]");
+    g_light1.setShaderID(g_shadingProg, "uLight[0]");
+    g_light2.setShaderID(g_shadingProg, "uLight[1]");
+    g_light3.setShaderID(g_shadingProg, "uLight[2]");
+    g_light4.setShaderID(g_shadingProg, "uLight[3]");
+    g_light5.setShaderID(g_shadingProg, "uLight[4]");
+    g_light6.setShaderID(g_shadingProg, "uLight[5]");
+    g_light1.setIntensity(0.2f);
+    g_light2.setIntensity(0.2f);
+    g_light3.setIntensity(0.2f);
+    g_light4.setIntensity(0.2f);
+    g_light5.setIntensity(0.2f);
+    g_light6.setIntensity(0.2f);
     //g_capSpotLight.setShaderID(g_shadingProg, "uLight[1]");
     //g_capSpotLight.setCutOffDeg(20.0f, 60.0f, 1.5f); // 第三引數為聚焦指數（optional）
     //g_cupSpotLight.setShaderID(g_shadingProg, "uLight[2]");
@@ -117,12 +130,12 @@ void loadScene(void)
     //g_knotSpotLight.setShaderID(g_shadingProg, "uLight[3]");
     //g_knotSpotLight.setCutOffDeg(20.0f, 60.0f, 1.5f);
 
-    glUniform1i(glGetUniformLocation(g_shadingProg, "uLightNum"), 1);
+    glUniform1i(glGetUniformLocation(g_shadingProg, "uLightNum"), ROOM_NUM);
     glUniform1i(glGetUniformLocation(g_shadingProg, "uIsNpr"), 0); // 切換照明風格（是否為卡通）
 
     // 設定貼圖
     g_texData[0] = CTexturePool::getInstance().getTexture("texture/wall.png", true); // 開啟 mipmap
-    g_texData[1] = CTexturePool::getInstance().getTexture("texture/floor_.png"); // 不開啟 mipmap
+    g_texData[1] = CTexturePool::getInstance().getTexture("texture/floor.png"); // 不開啟 mipmap
 
     //g_capsule.setupVertexAttributes();
     //g_capsule.setShaderID(g_shadingProg, 3);
@@ -258,12 +271,14 @@ void render(void)
     glUseProgram(g_shadingProg);
 
     //上傳光源與相機位置
-    g_light.updateToShader();
-    /*g_capSpotLight.updateToShader();
-    g_cupSpotLight.updateToShader();
-    g_knotSpotLight.updateToShader();*/
+    g_light1.updateToShader();
+    g_light2.updateToShader();
+    g_light3.updateToShader();
+    g_light4.updateToShader();
+    g_light5.updateToShader();
+    g_light6.updateToShader();
     glUniform3fv(glGetUniformLocation(g_shadingProg, "viewPos"), 1, glm::value_ptr(g_eyeloc));
-    glUniform3fv(glGetUniformLocation(g_shadingProg, "lightPos"), 1, glm::value_ptr(g_light.getPos()));
+    glUniform3fv(glGetUniformLocation(g_shadingProg, "lightPos"), 1, glm::value_ptr(g_light1.getPos())); // 選一個光源當代表就好
 
     // 先切換回 3d 投影畫模型，再切換到 2d 投影畫 UI
     g_mxView = CCamera::getInstance().getViewMatrix();
@@ -271,19 +286,12 @@ void render(void)
     glUniformMatrix4fv(g_viewLoc, 1, GL_FALSE, glm::value_ptr(g_mxView));
     glUniformMatrix4fv(g_projLoc, 1, GL_FALSE, glm::value_ptr(g_mxProj));
 
-    g_light.drawRaw();
-    //g_capSpotLight.drawRaw(); // g_capSpotTarget 不用特別繪製
-    //g_cupSpotLight.drawRaw();
-    //g_knotSpotLight.drawRaw();
-
-    /*g_capsule.uploadMaterial();
-    g_capsule.drawRaw();
-    g_cup.uploadMaterial();
-    g_cup.drawRaw();
-    g_objModel.uploadMaterial();
-    g_objModel.drawRaw();
-    g_knot.uploadMaterial();
-    g_knot.drawRaw();*/
+    g_light1.drawRaw();
+    g_light2.drawRaw();
+    g_light3.drawRaw();
+    g_light4.drawRaw();
+    g_light5.drawRaw();
+    g_light6.drawRaw();
     
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, 0); // 不綁定貼圖
@@ -343,7 +351,12 @@ void update(float dt)
     //    g_light.updateToShader();
     //}
     
-    g_light.update(dt);
+    g_light1.update(dt);
+    g_light2.update(dt);
+    g_light3.update(dt);
+    g_light4.update(dt);
+    g_light5.update(dt);
+    g_light6.update(dt);
 }
 
 void releaseAll()
