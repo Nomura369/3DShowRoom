@@ -19,6 +19,12 @@
     <Filter Include="models">
       <UniqueIdentifier>{b475c4fb-4061-44f4-8b40-a5c6da63de2a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="SOIL">
+      <UniqueIdentifier>{ac98a2d1-8f16-4bcb-b73f-83ea78dad286}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="texture">
+      <UniqueIdentifier>{8a0f5c88-1add-4c24-835c-5acf09f40fa4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="common\arcball.cpp">
@@ -75,12 +81,6 @@
     <ClCompile Include="models\CObjModel.cpp">
       <Filter>models</Filter>
     </ClCompile>
-    <ClCompile Include="models\CQuad.cpp">
-      <Filter>models</Filter>
-    </ClCompile>
-    <ClCompile Include="models\CShape.cpp">
-      <Filter>models</Filter>
-    </ClCompile>
     <ClCompile Include="models\CSphere.cpp">
       <Filter>models</Filter>
     </ClCompile>
@@ -92,6 +92,18 @@
     </ClCompile>
     <ClCompile Include="3DShowRoom.cpp">
       <Filter>來源檔案</Filter>
+    </ClCompile>
+    <ClCompile Include="common\png_loader.cpp">
+      <Filter>common</Filter>
+    </ClCompile>
+    <ClCompile Include="common\CTexturePool.cpp">
+      <Filter>common</Filter>
+    </ClCompile>
+    <ClCompile Include="models\CShape.cpp">
+      <Filter>models</Filter>
+    </ClCompile>
+    <ClCompile Include="models\CQuad.cpp">
+      <Filter>models</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -152,12 +164,6 @@
     <ClInclude Include="models\CObjModel.h">
       <Filter>models</Filter>
     </ClInclude>
-    <ClInclude Include="models\CQuad.h">
-      <Filter>models</Filter>
-    </ClInclude>
-    <ClInclude Include="models\CShape.h">
-      <Filter>models</Filter>
-    </ClInclude>
     <ClInclude Include="models\CSphere.h">
       <Filter>models</Filter>
     </ClInclude>
@@ -165,6 +171,21 @@
       <Filter>models</Filter>
     </ClInclude>
     <ClInclude Include="models\CTorusKnot.h">
+      <Filter>models</Filter>
+    </ClInclude>
+    <ClInclude Include="common\png_loader.h">
+      <Filter>common</Filter>
+    </ClInclude>
+    <ClInclude Include="common\CTexturePool.h">
+      <Filter>common</Filter>
+    </ClInclude>
+    <ClInclude Include="models\CShape.h">
+      <Filter>models</Filter>
+    </ClInclude>
+    <ClInclude Include="SOIL\SOIL.h">
+      <Filter>SOIL</Filter>
+    </ClInclude>
+    <ClInclude Include="models\CQuad.h">
       <Filter>models</Filter>
     </ClInclude>
   </ItemGroup>
@@ -181,5 +202,21 @@
     <None Include="v_uishader.glsl">
       <Filter>來源檔案</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="SOIL\SOIL.lib">
+      <Filter>SOIL</Filter>
+    </Library>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="texture\wall.png">
+      <Filter>texture</Filter>
+    </Image>
+    <Image Include="texture\floor.png">
+      <Filter>texture</Filter>
+    </Image>
+    <Image Include="texture\floor_.png">
+      <Filter>texture</Filter>
+    </Image>
   </ItemGroup>
 </Project>

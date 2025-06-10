@@ -20,12 +20,14 @@
 #include "common/wmhandler.h"
 #include "common/CCamera.h"
 #include "common/CShaderPool.h"
+#include "common/CTexturePool.h"
 #include "../models/CQuad.h"
 #include "../models/CTorusKnot.h"
 #include "../models/CBox.h"
 #include "../models/CSphere.h"
 #include "../models/CCapsule.h"
 #include "../models/CCup.h"
+#include "../models/CShape.h"
 
 #include "common/CLight.h"
 #include "common/CMaterial.h"
@@ -33,15 +35,16 @@
 #include "common/CButton.h"
 
 #define SCREEN_WIDTH  800
-#define SCREEN_HEIGHT 800 
-#define ROW_NUM 30
+#define SCREEN_HEIGHT 800
 #define ROOM_NUM 6
 
-// 範例模型宣告區
+// 一般模型宣告區
 //CCapsule g_capsule;
 //CCup g_cup;
 //CTorusKnot g_knot(4);
 CBox g_room[ROOM_NUM];
+CQuad g_walls[ROOM_NUM * 4]; // 所有房間的牆面
+CQuad g_floor[ROOM_NUM]; // 所有房間的地板
 CSphere g_sphere;
 
 // obj 檔模型宣告區
@@ -50,7 +53,6 @@ CSphere g_sphere;
 // 鏡頭與場景宣告區
 glm::vec3 g_eyeloc(6.0f, 6.0f, 6.0f); // 鏡頭位置, 預設在 (8,8,8) 
 CCube g_centerloc; // view center 預設在 (0,0,0)，不做任何描繪操作
-CQuad g_floor[ROOM_NUM][ROW_NUM][ROW_NUM];
 
 GLuint g_shadingProg;
 GLuint g_uiShadingProg;
@@ -71,6 +73,9 @@ CMaterial g_matWaterRed;
 CMaterial g_matWoodHoney;
 CMaterial g_matWoodLightOak;
 CMaterial g_matWoodBleached;
+
+// 貼圖宣告區
+TextureData g_texData[2]; 
 
 // 2D 素材宣告區
 //std::array<CButton, 4> g_button = {
@@ -115,6 +120,10 @@ void loadScene(void)
     glUniform1i(glGetUniformLocation(g_shadingProg, "uLightNum"), 1);
     glUniform1i(glGetUniformLocation(g_shadingProg, "uIsNpr"), 0); // 切換照明風格（是否為卡通）
 
+    // 設定貼圖
+    g_texData[0] = CTexturePool::getInstance().getTexture("texture/wall.png", true); // 開啟 mipmap
+    g_texData[1] = CTexturePool::getInstance().getTexture("texture/floor_.png"); // 不開啟 mipmap
+
     //g_capsule.setupVertexAttributes();
     //g_capsule.setShaderID(g_shadingProg, 3);
     //g_capsule.setPos(glm::vec3(8.0f, 0.5f, -8.0f));
@@ -138,42 +147,75 @@ void loadScene(void)
     //g_knot.setPos(glm::vec3(0.0f, 0.5f, 8.0f));
     //g_knot.setMaterial(g_matWaterGreen);
 
-    for (int i = 0; i < ROOM_NUM; i++) {
-        g_room[i].setupVertexAttributes();
-        g_room[i].setShaderID(g_shadingProg, 3);
-        g_room[i].setScale(glm::vec3(30.0f, 12.0f, 30.0f));
-        g_room[i].setMaterial(g_matWoodBleached);
-    }
-    glm::vec3 roomPos(0.0f, 5.95, 0.0f);
+    glm::vec3 roomPos(0.0f, 5.95f, 0.0f);
     glm::vec3 offsetX(-30.1f, 0.0f, 0.0f);
     glm::vec3 offsetZ(0.0f, 0.0f, -30.1f);
-    for (int i = 0; i < 3; i++) {
-        for (int j = 0; j < 2; j++) {
-            g_room[i * 2 + j].setPos(roomPos + offsetX * (float)j + offsetZ * (float)i);
-        }
+    for (int room = 0; room < ROOM_NUM; ++room) {
+        g_room[room].setupVertexAttributes();
+        g_room[room].setShaderID(g_shadingProg, 3);
+        g_room[room].setScale(glm::vec3(30.0f, 12.0f, 30.0f));
+        g_room[room].setMaterial(g_matWoodBleached);
+
+        // 將房間放置在 3x2 矩陣中
+        glm::vec3 offset = offsetX * (float)(room % 2) + offsetZ * (float)(room / 2);
+        g_room[room].setPos(roomPos + offset);
     }
 
-    /*int k = 0;
-    for (int n = 0; n < ROOM_NUM; n++) {
-        float roomX = g_room[n].getPos().x;
-        float roomZ = g_room[n].getPos().z;
-        for (int i = 0; i < ROW_NUM; i++)
-        {
-            k++;
-            for (int j = 0; j < ROW_NUM; j++) {
-                g_floor[n][i][j].setupVertexAttributes();
-                g_floor[n][i][j].setShaderID(g_shadingProg, 3);
-                g_floor[n][i][j].setPos(glm::vec3((ROW_NUM / 2) - 0.5f - (float)i + roomX, 0.0f, (float)j - (ROW_NUM / 2) + 0.5f + roomZ));
-                g_floor[n][i][j].setRotate(-90.0f, glm::vec3(1.0f, 0.0f, 0.0f));
-                if (k % 2) g_floor[n][i][j].setMaterial(g_matBeige);
-                else g_floor[n][i][j].setMaterial(g_matWoodHoney);
-                k++;
-            }
-        }
-    }*/
+    glm::vec3 floorPos(0.0f, 0.0f, 0.0f);
+    for (int floor = 0; floor < ROOM_NUM; ++floor) {
+        g_floor[floor].setupVertexAttributes();
+        g_floor[floor].setShaderID(g_shadingProg, 3);
+        g_floor[floor].setScale(glm::vec3(30.0f, 30.0f, 1.0f));
+        g_floor[floor].setRotate(-90, glm::vec3(1, 0, 0)); // 攤平並翻正
+        g_floor[floor].setMaterial(g_matWoodBleached);
+        g_floor[floor].setTextureMode(CShape::TEX_DIFFUSE);
+        g_floor[floor].setTiling(90, 90);
 
-    g_centerloc.setPos(glm::vec3(0.0f, 4.0f, 0.0f)); // 設定 center 位置
+        glm::vec3 offset = offsetX * (float)(floor % 2) + offsetZ * (float)(floor / 2);
+        g_floor[floor].setPos(floorPos + offset);
+    }
     
+    for (int room = 0; room < ROOM_NUM; ++room) {
+        glm::vec3 offset = offsetX * (float)(room % 2) + offsetZ * (float)(room / 2);
+
+        for (int side = 0; side < 4; ++side) {
+            int idx = room * 4 + side;
+
+            g_walls[idx].setupVertexAttributes();
+            g_walls[idx].setShaderID(g_shadingProg, 3);
+            g_walls[idx].setScale(glm::vec3(30.0f, 12.0f, 30.0f));
+            g_walls[idx].setMaterial(g_matWoodBleached);
+            g_walls[idx].setTextureMode(CShape::TEX_DIFFUSE);
+
+            glm::vec3 wallPos;
+            float rotationY = 0.0f;
+
+            switch (side) {
+            case 0: // 右牆
+                wallPos = glm::vec3(0.0f, 0.0f, 14.95f);
+                rotationY = 0.0f + 180.0f;
+                break;
+            case 1: // 後牆
+                wallPos = glm::vec3(14.95f, 0.0f, 0.0f);
+                rotationY = 90.0f + 180.0f;
+                break;
+            case 2: // 左牆
+                wallPos = glm::vec3(0.0f, 0.0f, -14.95f);
+                rotationY = 180.0f - 180.0f;
+                break;
+            case 3: // 前牆
+                wallPos = glm::vec3(-14.95f, 0.0f, 0.0f);
+                rotationY = 270.0f - 180.0f;
+                break;
+            }
+
+            g_walls[idx].setPos(roomPos + offset + wallPos);
+            g_walls[idx].setRotate(rotationY, glm::vec3(0, 1, 0));
+        }
+    }
+    
+    g_centerloc.setScale(glm::vec3(30.0f, 12.0f, 30.0f)); // 設定 center 位置
+
     CCamera::getInstance().updateView(g_eyeloc); // 設定 eye 位置
     CCamera::getInstance().updateCenter(glm::vec3(0,4,0));
 	CCamera::getInstance().updatePerspective(45.0f, (float)SCREEN_WIDTH / SCREEN_HEIGHT, 0.1f, 100.0f);
@@ -221,23 +263,13 @@ void render(void)
     g_cupSpotLight.updateToShader();
     g_knotSpotLight.updateToShader();*/
     glUniform3fv(glGetUniformLocation(g_shadingProg, "viewPos"), 1, glm::value_ptr(g_eyeloc));
-    //glUniform3fv(glGetUniformLocation(g_shadingProg, "lightPos"), 1, glm::value_ptr(g_light.getPos()));
-    glUniform1i(glGetUniformLocation(g_shadingProg, "uIsNpr"), (int)g_isNpr); // 切換照明風格（是否為卡通）
+    glUniform3fv(glGetUniformLocation(g_shadingProg, "lightPos"), 1, glm::value_ptr(g_light.getPos()));
 
     // 先切換回 3d 投影畫模型，再切換到 2d 投影畫 UI
     g_mxView = CCamera::getInstance().getViewMatrix();
     g_mxProj = CCamera::getInstance().getProjectionMatrix();
     glUniformMatrix4fv(g_viewLoc, 1, GL_FALSE, glm::value_ptr(g_mxView));
     glUniformMatrix4fv(g_projLoc, 1, GL_FALSE, glm::value_ptr(g_mxProj));
-
-    /*for (int n = 0; n < ROOM_NUM; n++) {
-        for (int i = 0; i < ROW_NUM; i++){
-            for (int j = 0; j < ROW_NUM; j++) {
-                g_floor[n][i][j].uploadMaterial();
-                g_floor[n][i][j].drawRaw();
-            }
-        }
-    }*/
 
     g_light.drawRaw();
     //g_capSpotLight.drawRaw(); // g_capSpotTarget 不用特別繪製
@@ -252,17 +284,34 @@ void render(void)
     g_objModel.drawRaw();
     g_knot.uploadMaterial();
     g_knot.drawRaw();*/
-
-    for (int i = 0; i < 6; i++) {
+    
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, 0); // 不綁定貼圖
+    for (int i = 0; i < ROOM_NUM; i++) {
         g_room[i].uploadMaterial();
+        g_room[i].uploadTextureFlags();
         g_room[i].drawRaw();
     }
 
-    glUseProgram(g_uiShadingProg);
+    glBindTexture(GL_TEXTURE_2D, g_texData[1].id); // 綁定貼圖 
+    for (int i = 0; i < ROOM_NUM; i++) {
+        g_floor[i].uploadMaterial();
+        g_floor[i].uploadTextureFlags();
+        g_floor[i].drawRaw();
+    }
+    
+    glBindTexture(GL_TEXTURE_2D, g_texData[0].id); // 綁定貼圖 
+    for (int i = 0; i < ROOM_NUM * 4; i++) {
+        g_walls[i].uploadMaterial();
+        g_walls[i].uploadTextureFlags();
+        g_walls[i].drawRaw();
+    }
+
+    /*glUseProgram(g_uiShadingProg);
     glUniformMatrix4fv(g_uiViewLoc, 1, GL_FALSE, glm::value_ptr(g_mxUiView));
     glUniformMatrix4fv(g_uiProjLoc, 1, GL_FALSE, glm::value_ptr(g_mxUiProj));
 
-    /*for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < 4; i++) {
         g_button[i].draw();
     }*/
 }
@@ -345,12 +394,12 @@ int main() {
     // 呼叫 loadScene() 建立與載入 GPU 進行描繪的幾何資料 
     loadScene();
 
-    std::cout << "wasd/WASD 移動" << std::endl;
+    /*std::cout << "wasd/WASD 移動" << std::endl;
     std::cout << "n/N 切換照明模式" << std::endl;
     std::cout << "c/C 切換位移方式" << std::endl;
     std::cout << "rgb/RGB 改變點光源色調" << std::endl;
     std::cout << "h/H 重設點光源色調" << std::endl;
-    std::cout << "l/L 自動漸變點光源色調" << std::endl << std::endl;
+    std::cout << "l/L 自動漸變點光源色調" << std::endl << std::endl;*/
     
     float lastTime = (float)glfwGetTime();
     while (!glfwWindowShouldClose(window)) {

@@ -95,6 +95,8 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>glew32.lib;glfw3.lib;opengl32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <LinkTimeCodeGeneration>
+      </LinkTimeCodeGeneration>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -150,7 +152,9 @@
     <ClCompile Include="common\CObjLoader.cpp" />
     <ClCompile Include="common\CShaderPool.cpp" />
     <ClCompile Include="common\CSprite2D.cpp" />
+    <ClCompile Include="common\CTexturePool.cpp" />
     <ClCompile Include="common\initShader.cpp" />
+    <ClCompile Include="common\png_loader.cpp" />
     <ClCompile Include="common\wmhandler.cpp" />
     <ClCompile Include="models\CBottle.cpp" />
     <ClCompile Include="models\CBox.cpp" />
@@ -176,7 +180,9 @@
     <ClInclude Include="common\CObjLoader.h" />
     <ClInclude Include="common\CShaderPool.h" />
     <ClInclude Include="common\CSprite2D.h" />
+    <ClInclude Include="common\CTexturePool.h" />
     <ClInclude Include="common\initshader.h" />
+    <ClInclude Include="common\png_loader.h" />
     <ClInclude Include="common\typedefs.h" />
     <ClInclude Include="common\wmhandler.h" />
     <ClInclude Include="models\CBottle.h" />
@@ -192,12 +198,21 @@
     <ClInclude Include="models\CSphere.h" />
     <ClInclude Include="models\CTeapot.h" />
     <ClInclude Include="models\CTorusKnot.h" />
+    <ClInclude Include="SOIL\SOIL.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="f_shader.glsl" />
     <None Include="f_uishader.glsl" />
     <None Include="v_shader.glsl" />
     <None Include="v_uishader.glsl" />
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="SOIL\SOIL.lib" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="texture\floor.png" />
+    <Image Include="texture\floor_.png" />
+    <Image Include="texture\wall.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
