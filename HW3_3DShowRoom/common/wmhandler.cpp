@@ -39,10 +39,10 @@ extern float g_colorTime;
 
 Arcball g_arcball; //保留未用
 
-// 房間邊界設定
+// 空間邊界設定
 struct RoomAABB {
-    glm::vec3 roomMin; // 房間的左下角（或最低點）
-    glm::vec3 roomMax; // 房間的右上角（或最高點）
+    glm::vec3 roomMin; // 房間們的左下角（或最低點）
+    glm::vec3 roomMax; // 房間們的右上角（或最高點）
 
     bool isInsideRoom(const glm::vec3& pos) {
         if ((pos.x >= roomMin.x && pos.x <= roomMax.x) &&
@@ -56,9 +56,9 @@ struct RoomAABB {
         }  
     }
 };
-RoomAABB theRoom = {
-    glm::vec3(-15.0f, -15.0f, -11.0f), // roomMin
-    glm::vec3(15.0f, 15.0f, 11.0f), // roomMax
+RoomAABB allRooms = {
+    glm::vec3(-45.1f, -0.05f, -75.2f), // roomMin
+    glm::vec3(15.0f, 11.95f, 15.0f), // roomMax
 };
 
 // 位移用函式（不然程式碼太雜了）
@@ -74,12 +74,10 @@ void moveForward(bool isForward) {
     glm::vec3 eyeloc = g_eyeloc + front * speed * direction;
     glm::vec3 centerloc = centerPos + front * speed * direction;
 
-    /*if (theRoom.isInsideRoom(eyeloc) && theRoom.isInsideRoom(centerloc)) {
+    if (allRooms.isInsideRoom(eyeloc) && allRooms.isInsideRoom(centerloc)) {
         g_eyeloc = eyeloc;
         g_centerloc.setPos(centerloc);
-    }*/
-    g_eyeloc = eyeloc;
-    g_centerloc.setPos(centerloc);
+    }
 
     // 更新攝影機與 view matrix
     CCamera::getInstance().updateViewCenter(g_eyeloc, g_centerloc.getPos());
@@ -101,12 +99,10 @@ void moveRight(bool isRight) {
     glm::vec3 eyeloc = g_eyeloc + right * speed * direction;
     glm::vec3 centerloc = centerPos + right * speed * direction;
 
-    /*if (theRoom.isInsideRoom(eyeloc) && theRoom.isInsideRoom(centerloc)) {
+    if (allRooms.isInsideRoom(eyeloc) && allRooms.isInsideRoom(centerloc)) {
         g_eyeloc = eyeloc;
         g_centerloc.setPos(centerloc);
-    }*/
-    g_eyeloc = eyeloc;
-    g_centerloc.setPos(centerloc);
+    }
 
     // 更新攝影機與 view matrix
     CCamera::getInstance().updateViewCenter(g_eyeloc, g_centerloc.getPos());
