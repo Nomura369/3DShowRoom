@@ -58,12 +58,15 @@ GLuint g_shadingProg;
 GLuint g_uiShadingProg;
 
 // 全域光源 (位置在 5,5,0)
-CLight g_light1(glm::vec3(5.0f, 10.0f, 0.0f)); // 預設為點光源，每個房間一盞
-CLight g_light2(glm::vec3(-25.1f, 10.0f, 0.0f));
-CLight g_light3(glm::vec3(-50.2f, 10.0f, 0.0f));
-CLight g_light4(glm::vec3(5.0f, 10.0f, -30.1f));
-CLight g_light5(glm::vec3(-25.1f, 10.0f, -30.1f));
-CLight g_light6(glm::vec3(-50.2f, 10.0f, -30.1f));
+std::array<CLight, ROOM_NUM> g_lights = {
+    CLight (glm::vec3(0.0f, 10.0f, 0.0f)), // 預設為點光源，每個房間一盞
+    CLight (glm::vec3(-30.1f, 10.0f, 0.0f)),
+    CLight (glm::vec3(0.0f, 10.0f, -30.1f)),
+    CLight (glm::vec3(-30.1f, 10.0f, -30.1f)),
+    CLight (glm::vec3(0.0f, 10.0f, -60.2f)),
+    CLight(glm::vec3(-30.1f, 10.0f, -60.2f)),
+};
+
 //bool g_bOnBtnActive[4] = { false, false, false, false }; // 判斷按鈕們是否被按下
 
 // 全域材質（可依模型分別設定）
@@ -111,18 +114,16 @@ void loadScene(void)
     g_uiShadingProg = CShaderPool::getInstance().getShader("v_uishader.glsl", "f_uishader.glsl");
     
     // 設定燈光
-    g_light1.setShaderID(g_shadingProg, "uLight[0]");
-    g_light2.setShaderID(g_shadingProg, "uLight[1]");
-    g_light3.setShaderID(g_shadingProg, "uLight[2]");
-    g_light4.setShaderID(g_shadingProg, "uLight[3]");
-    g_light5.setShaderID(g_shadingProg, "uLight[4]");
-    g_light6.setShaderID(g_shadingProg, "uLight[5]");
-    g_light1.setIntensity(0.2f);
-    g_light2.setIntensity(0.2f);
-    g_light3.setIntensity(0.2f);
-    g_light4.setIntensity(0.2f);
-    g_light5.setIntensity(0.2f);
-    g_light6.setIntensity(0.2f);
+    g_lights[0].setShaderID(g_shadingProg, "uLight[0]");
+    g_lights[1].setShaderID(g_shadingProg, "uLight[1]");
+    g_lights[2].setShaderID(g_shadingProg, "uLight[2]");
+    g_lights[3].setShaderID(g_shadingProg, "uLight[3]");
+    g_lights[4].setShaderID(g_shadingProg, "uLight[4]");
+    g_lights[5].setShaderID(g_shadingProg, "uLight[5]");
+    for (int i = 0; i < ROOM_NUM; i++) {
+        g_lights[i].setIntensity(0.2f);
+    }
+    
     //g_capSpotLight.setShaderID(g_shadingProg, "uLight[1]");
     //g_capSpotLight.setCutOffDeg(20.0f, 60.0f, 1.5f); // 第三引數為聚焦指數（optional）
     //g_cupSpotLight.setShaderID(g_shadingProg, "uLight[2]");
@@ -227,7 +228,7 @@ void loadScene(void)
         }
     }
     
-    g_centerloc.setScale(glm::vec3(30.0f, 12.0f, 30.0f)); // 設定 center 位置
+    g_centerloc.setPos(glm::vec3(0.0f, 4.0f, 0.0f)); // 設定 center 位置
 
     CCamera::getInstance().updateView(g_eyeloc); // 設定 eye 位置
     CCamera::getInstance().updateCenter(glm::vec3(0,4,0));
@@ -271,14 +272,11 @@ void render(void)
     glUseProgram(g_shadingProg);
 
     //上傳光源與相機位置
-    g_light1.updateToShader();
-    g_light2.updateToShader();
-    g_light3.updateToShader();
-    g_light4.updateToShader();
-    g_light5.updateToShader();
-    g_light6.updateToShader();
+    for (int i = 0; i < ROOM_NUM; i++) {
+        g_lights[i].updateToShader();
+    }
     glUniform3fv(glGetUniformLocation(g_shadingProg, "viewPos"), 1, glm::value_ptr(g_eyeloc));
-    glUniform3fv(glGetUniformLocation(g_shadingProg, "lightPos"), 1, glm::value_ptr(g_light1.getPos())); // 選一個光源當代表就好
+    glUniform3fv(glGetUniformLocation(g_shadingProg, "lightPos"), 1, glm::value_ptr(g_lights[0].getPos())); // 選一個光源當代表就好
 
     // 先切換回 3d 投影畫模型，再切換到 2d 投影畫 UI
     g_mxView = CCamera::getInstance().getViewMatrix();
@@ -286,12 +284,9 @@ void render(void)
     glUniformMatrix4fv(g_viewLoc, 1, GL_FALSE, glm::value_ptr(g_mxView));
     glUniformMatrix4fv(g_projLoc, 1, GL_FALSE, glm::value_ptr(g_mxProj));
 
-    g_light1.drawRaw();
-    g_light2.drawRaw();
-    g_light3.drawRaw();
-    g_light4.drawRaw();
-    g_light5.drawRaw();
-    g_light6.drawRaw();
+    for (int i = 0; i < ROOM_NUM; i++) {
+        g_lights[i].drawRaw();
+    }
     
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, 0); // 不綁定貼圖
@@ -351,12 +346,11 @@ void update(float dt)
     //    g_light.updateToShader();
     //}
     
-    g_light1.update(dt);
-    g_light2.update(dt);
-    g_light3.update(dt);
-    g_light4.update(dt);
-    g_light5.update(dt);
-    g_light6.update(dt);
+    for (int i = 0; i < ROOM_NUM; i++) {
+        g_lights[i].update(dt);
+    }
+
+    CCamera::getInstance().update(dt);
 }
 
 void releaseAll()

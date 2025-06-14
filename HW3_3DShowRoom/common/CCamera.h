@@ -20,6 +20,7 @@ public:
 	void updateView(const glm::vec3& view);
 	void updateCenter(const glm::vec3& center);
 	void updateRadius(float delta);
+	void update(float dt);
 
 	void processMouseMovement(float deltaX, float deltaY, float sens);
 	void processMouseScroll(float deltaScroll, float zoomSensitivity);
@@ -32,6 +33,10 @@ public:
 	CCamera::Type getProjectionType() const;
 	glm::vec3& getUpVector();
 	float getRadius();
+	bool getIsWalking();
+
+	// Camera Setters
+	void setIsWalking(bool isWalking);
 
 protected:
 	// Constructor & Destructor
@@ -63,4 +68,8 @@ protected:
 	float _theta;  // 水平角度
 	float _phi;    // 垂直角度
 	float _radius; // eye 與 center 間的距離
+
+	// 移動時的晃動效果
+	float _walkTime;
+	bool _isWalking;
 };

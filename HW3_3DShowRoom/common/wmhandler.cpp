@@ -23,7 +23,6 @@ bool  g_bCamRoting = false; // 用於鏡頭的旋轉
 bool  g_bfirstMouse = true;   // 滑鼠左鍵首次按下，預設為 true
 float g_lastX = 400, g_lastY = 400; // 滑鼠移動的距離
 float g_mouseSens = 0.005f;   // 位移鏡頭的靈敏度
-bool g_isCameraBasedMoving = true; // 位移是以鏡頭座標 or 世界座標為基準（預設為前者）
 
 extern CCube g_centerloc;
 extern GLuint g_shadingProg;
@@ -64,159 +63,55 @@ RoomAABB theRoom = {
 
 // 位移用函式（不然程式碼太雜了）
 void moveForward(bool isForward) {
-    glm::vec3 vPos;
-    glm::vec3 front; // 代表鏡頭的不同軸向
-    float speed = 0.05f; // 鏡頭位移速度
-    glm::vec3 eyeloc, centerloc; // 暫存 g_eyeloc 和 g_centerloc 以方便計算
-    glm::mat4 mxView;
-    GLint viewLoc;
+    float speed = 0.1f;
+    float direction = isForward ? 1.0f : -1.0f;
 
-    if (isForward) { // 向前移動
-        if (g_isCameraBasedMoving) {
-            // 鏡頭方向為主
-            g_eyeloc = CCamera::getInstance().getViewLocation(); // 取得 eye 位置
-            front = glm::normalize(g_eyeloc - g_centerloc.getPos()); // front 為眼睛看向中心方向
-            eyeloc = g_eyeloc - front * speed;
-            centerloc = g_centerloc.getPos() - front * speed;
+    glm::vec3 g_eyeloc = CCamera::getInstance().getViewLocation();
+    glm::vec3 centerPos = g_centerloc.getPos();
 
-            if (theRoom.isInsideRoom(eyeloc) && theRoom.isInsideRoom(centerloc)) {
-                g_eyeloc = eyeloc;
-                g_centerloc.setPos(centerloc);
-            }
-        }
-        else {
-            // 世界座標方向為主
-            vPos = g_centerloc.getPos();
-            g_centerloc.setPos(glm::vec3(vPos.x, vPos.y, vPos.z - speed));
-            g_eyeloc = CCamera::getInstance().getViewLocation();
-            g_eyeloc.z -= speed;
+    glm::vec3 front = glm::normalize(centerPos - g_eyeloc); // 眼睛指向目標方向
 
-            if (theRoom.isInsideRoom(g_eyeloc) && theRoom.isInsideRoom(g_centerloc.getPos())) {
-                // 沒問題就保留移動
-            }
-            else {
-                // 若不在房間內，還原位置
-                g_centerloc.setPos(vPos);
-                g_eyeloc = CCamera::getInstance().getViewLocation();
-            }
-        }
-    }
-    else { // 向後移動
-        if (g_isCameraBasedMoving) {
-            // 鏡頭方向為主
-            g_eyeloc = CCamera::getInstance().getViewLocation(); // 取得 eye 位置
-            front = glm::normalize(g_eyeloc - g_centerloc.getPos()); // front 為眼睛看向中心方向
-            eyeloc = g_eyeloc + front * speed;
-            centerloc = g_centerloc.getPos() + front * speed;
+    glm::vec3 eyeloc = g_eyeloc + front * speed * direction;
+    glm::vec3 centerloc = centerPos + front * speed * direction;
 
-            if (theRoom.isInsideRoom(eyeloc) && theRoom.isInsideRoom(centerloc)) {
-                g_eyeloc = eyeloc;
-                g_centerloc.setPos(centerloc);
-            }
-        }
-        else {
-            // 世界座標方向為主
-            vPos = g_centerloc.getPos();
-            g_centerloc.setPos(glm::vec3(vPos.x, vPos.y, vPos.z + speed));
-            g_eyeloc = CCamera::getInstance().getViewLocation();
-            g_eyeloc.z += speed;
+    /*if (theRoom.isInsideRoom(eyeloc) && theRoom.isInsideRoom(centerloc)) {
+        g_eyeloc = eyeloc;
+        g_centerloc.setPos(centerloc);
+    }*/
+    g_eyeloc = eyeloc;
+    g_centerloc.setPos(centerloc);
 
-            if (theRoom.isInsideRoom(g_eyeloc) && theRoom.isInsideRoom(g_centerloc.getPos())) {
-                // 沒問題就保留移動
-            }
-            else {
-                // 若不在房間內，還原位置
-                g_centerloc.setPos(vPos);
-                g_eyeloc = CCamera::getInstance().getViewLocation();
-            }
-        }
-    }
-
-    // 共通更新攝影機與 view matrix
+    // 更新攝影機與 view matrix
     CCamera::getInstance().updateViewCenter(g_eyeloc, g_centerloc.getPos());
-    mxView = CCamera::getInstance().getViewMatrix();
-    viewLoc = glGetUniformLocation(g_shadingProg, "mxView");
+    glm::mat4 mxView = CCamera::getInstance().getViewMatrix();
+    GLint viewLoc = glGetUniformLocation(g_shadingProg, "mxView");
     glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(mxView));
 }
 void moveRight(bool isRight) {
-    glm::vec3 vPos;
-    glm::vec3 front, up, right; // 代表鏡頭的不同軸向
-    float speed = 0.05f; // 鏡頭位移速度
-    glm::vec3 eyeloc, centerloc; // 暫存 g_eyeloc 和 g_centerloc 以方便計算
-    glm::mat4 mxView;
-    GLint viewLoc;
+    float speed = 0.1f;
+    float direction = isRight ? 1.0f : -1.0f;
 
-    if (isRight) { // 向右移動
-        if (g_isCameraBasedMoving) {
-            // 鏡頭方向為主
-            g_eyeloc = CCamera::getInstance().getViewLocation(); // eye
-            front = glm::normalize(g_eyeloc - g_centerloc.getPos()); // front 向量
-            up = CCamera::getInstance().getUpVector(); // up 向量
-            right = glm::normalize(glm::cross(front, up)); // 右方向向量
+    glm::vec3 g_eyeloc = CCamera::getInstance().getViewLocation();
+    glm::vec3 centerPos = g_centerloc.getPos();
 
-            eyeloc = g_eyeloc - right * speed;
-            centerloc = g_centerloc.getPos() - right * speed;
+    glm::vec3 front = glm::normalize(centerPos - g_eyeloc); // 鏡頭看向的方向
+    glm::vec3 up = CCamera::getInstance().getUpVector();
+    glm::vec3 right = glm::normalize(glm::cross(front, up)); // 右向量
 
-            if (theRoom.isInsideRoom(eyeloc) && theRoom.isInsideRoom(centerloc)) {
-                g_eyeloc = eyeloc;
-                g_centerloc.setPos(centerloc);
-            }
-        }
-        else {
-            // 世界座標方向為主
-            vPos = g_centerloc.getPos();
-            g_centerloc.setPos(glm::vec3(vPos.x + speed, vPos.y, vPos.z));
-            g_eyeloc = CCamera::getInstance().getViewLocation();
-            g_eyeloc.x += speed;
+    glm::vec3 eyeloc = g_eyeloc + right * speed * direction;
+    glm::vec3 centerloc = centerPos + right * speed * direction;
 
-            if (theRoom.isInsideRoom(g_eyeloc) && theRoom.isInsideRoom(g_centerloc.getPos())) {
-                // 保留
-            }
-            else {
-                // 若會穿牆則還原
-                g_centerloc.setPos(vPos);
-                g_eyeloc = CCamera::getInstance().getViewLocation();
-            }
-        }
-    }
-    else { // 向左移動
-        if (g_isCameraBasedMoving) {
-            // 鏡頭方向為主
-            g_eyeloc = CCamera::getInstance().getViewLocation(); // eye
-            front = glm::normalize(g_eyeloc - g_centerloc.getPos()); // front 向量
-            up = CCamera::getInstance().getUpVector(); // up 向量
-            right = glm::normalize(glm::cross(front, up)); // 右方向向量
+    /*if (theRoom.isInsideRoom(eyeloc) && theRoom.isInsideRoom(centerloc)) {
+        g_eyeloc = eyeloc;
+        g_centerloc.setPos(centerloc);
+    }*/
+    g_eyeloc = eyeloc;
+    g_centerloc.setPos(centerloc);
 
-            eyeloc = g_eyeloc + right * speed;
-            centerloc = g_centerloc.getPos() + right * speed;
-
-            if (theRoom.isInsideRoom(eyeloc) && theRoom.isInsideRoom(centerloc)) {
-                g_eyeloc = eyeloc;
-                g_centerloc.setPos(centerloc);
-            }
-        }
-        else {
-            // 世界座標方向為主
-            vPos = g_centerloc.getPos();
-            g_centerloc.setPos(glm::vec3(vPos.x - speed, vPos.y, vPos.z));
-            g_eyeloc = CCamera::getInstance().getViewLocation();
-            g_eyeloc.x -= speed;
-
-            if (theRoom.isInsideRoom(g_eyeloc) && theRoom.isInsideRoom(g_centerloc.getPos())) {
-                // 保留
-            }
-            else {
-                // 若會穿牆則還原
-                g_centerloc.setPos(vPos);
-                g_eyeloc = CCamera::getInstance().getViewLocation();
-            }
-        }
-    }
-
-    // 共通更新攝影機與 view matrix
+    // 更新攝影機與 view matrix
     CCamera::getInstance().updateViewCenter(g_eyeloc, g_centerloc.getPos());
-    mxView = CCamera::getInstance().getViewMatrix();
-    viewLoc = glGetUniformLocation(g_shadingProg, "mxView");
+    glm::mat4 mxView = CCamera::getInstance().getViewMatrix();
+    GLint viewLoc = glGetUniformLocation(g_shadingProg, "mxView");
     glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(mxView));
 }
 
@@ -333,112 +228,138 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
 
     switch (key)
     {
-        case GLFW_KEY_ESCAPE:
-            if (action == GLFW_PRESS) { glfwSetWindowShouldClose(window, true); }
-            break;
-        case GLFW_KEY_SPACE:
-            break;
-        default: // 針對英文字母大小寫進行處理
-            if (action == GLFW_PRESS || action == GLFW_REPEAT) {
-                // 檢查 Shift 鍵(左右兩邊各一個)是否被按下
-                bool isShiftPressed = (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) ||
-                                      (glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS);
-                // 判斷字母鍵的大小寫，預設使用鍵盤是沒有按下 CAPS 鍵
-                if (key >= GLFW_KEY_A && key <= GLFW_KEY_Z) {
-                    char letter = (isShiftPressed) ? ('A' + (key - GLFW_KEY_A)) : ('a' + (key - GLFW_KEY_A));
-                    //std::cout << "key = " << letter << std::endl;
-                    switch (letter) {
-                        case 'W':
-                        case 'w':
-                            moveForward(true);
-                            break;
-                        case 'S':
-                        case 's':
-                            moveForward(false);
-                            break;
-                        case 'A':
-                        case 'a':
-                            moveRight(false);
-                            break;
-                        case 'D':
-                        case 'd':
-                            moveRight(true);
-                            break;
-                        case 'N':
-                        case 'n':
-                            // 切換照明風格（是否為卡通）
-                            g_isNpr = !g_isNpr;
-                            if (g_isNpr) {
-                                std::cout << "目前為 NPR 模式" << std::endl << std::endl;
-                            }
-                            else {
-                                std::cout << "目前為 Per-Pixel Lighting 模式" << std::endl << std::endl;
-                            }
-                            break;
-                        case 'C':
-                        case 'c':
-                            // 切換位移視角
-                            g_isCameraBasedMoving = !g_isCameraBasedMoving;
-                            if (g_isCameraBasedMoving) {
-                                std::cout << "目前以「鏡頭方向」進行位移" << std::endl << std::endl;
-                            }
-                            else {
-                                std::cout << "目前以「世界座標方向」進行位移" << std::endl << std::endl;
-                            }
-                            break;
-                        //case 'R':
-                        //case 'r':
-                        //    if (!g_isGradient) {
-                        //        // 將房間換成紅色系照明
-                        //        g_light.setAmbient(reds[0]);
-                        //        g_light.setDiffuse(reds[1]);
-                        //        g_light.setSpecular(reds[2]);
-                        //        std::cout << "紅色系房間" << std::endl << std::endl;
-                        //    }
-                        //    break;
-                        //case 'G':
-                        //case 'g':
-                        //    if (!g_isGradient) {
-                        //        // 將房間換成綠色系照明
-                        //        g_light.setAmbient(greens[0]);
-                        //        g_light.setDiffuse(greens[1]);
-                        //        g_light.setSpecular(greens[2]);
-                        //        std::cout << "綠色系房間" << std::endl << std::endl;
-                        //    }
-                        //    break;
-                        //case 'B':
-                        //case 'b':
-                        //    if (!g_isGradient) {
-                        //        // 將房間換成藍色系照明
-                        //        g_light.setAmbient(blues[0]);
-                        //        g_light.setDiffuse(blues[1]);
-                        //        g_light.setSpecular(blues[2]);
-                        //        std::cout << "藍色系房間" << std::endl << std::endl;
-                        //    }
-                        //    break;
-                        //case 'H':
-                        //case 'h':
-                        //    // 將房間換成預設照明
-                        //    if (!g_isGradient) {
-                        //        g_light.setAmbient(glm::vec4(0.1f));
-                        //        g_light.setDiffuse(glm::vec4(0.8f));
-                        //        g_light.setSpecular(glm::vec4(1.0f));
-                        //        std::cout << "預設房間" << std::endl << std::endl;
-                        //    }
-                        //    break;
-                        case 'L':
-                        case 'l':
-                            // 是否漸變照明色彩
-                            g_isGradient = !g_isGradient;
-                            if (!g_isGradient) {
-                                g_colorTime = 0.0f;
-                                std::cout << "關閉自動變色" << std::endl << std::endl;
-                            }
-                            else std::cout << "開啟自動變色" << std::endl << std::endl;
-                            break;
+    case GLFW_KEY_ESCAPE:
+        if (action == GLFW_PRESS) { glfwSetWindowShouldClose(window, true); }
+        break;
+    case GLFW_KEY_SPACE:
+        break;
+    default: // 針對英文字母大小寫進行處理
+        if (action == GLFW_PRESS || action == GLFW_REPEAT) {
+            // 檢查 Shift 鍵(左右兩邊各一個)是否被按下
+            bool isShiftPressed = (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) ||
+                (glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS);
+            // 判斷字母鍵的大小寫，預設使用鍵盤是沒有按下 CAPS 鍵
+            if (key >= GLFW_KEY_A && key <= GLFW_KEY_Z) {
+                char letter = (isShiftPressed) ? ('A' + (key - GLFW_KEY_A)) : ('a' + (key - GLFW_KEY_A));
+                //std::cout << "key = " << letter << std::endl;
+                switch (letter) {
+                case 'W':
+                case 'w':
+                    CCamera::getInstance().setIsWalking(true);
+                    moveForward(true);
+                    break;
+                case 'S':
+                case 's':
+                    CCamera::getInstance().setIsWalking(true);
+                    moveForward(false);
+                    break;
+                case 'A':
+                case 'a':
+                    CCamera::getInstance().setIsWalking(true);
+                    moveRight(false);
+                    break;
+                case 'D':
+                case 'd':
+                    CCamera::getInstance().setIsWalking(true);
+                    moveRight(true);
+                    break;
+                case 'N':
+                case 'n':
+                    // 切換照明風格（是否為卡通）
+                    g_isNpr = !g_isNpr;
+                    if (g_isNpr) {
+                        std::cout << "目前為 NPR 模式" << std::endl << std::endl;
                     }
-                }   
+                    else {
+                        std::cout << "目前為 Per-Pixel Lighting 模式" << std::endl << std::endl;
+                    }
+                    break;
+                    //case 'C':
+                    //case 'c':
+                    //    // 切換位移視角
+                    //    g_isCameraBasedMoving = !g_isCameraBasedMoving;
+                    //    if (g_isCameraBasedMoving) {
+                    //        std::cout << "目前以「鏡頭方向」進行位移" << std::endl << std::endl;
+                    //    }
+                    //    else {
+                    //        std::cout << "目前以「世界座標方向」進行位移" << std::endl << std::endl;
+                    //    }
+                    //    break;
+                    //case 'R':
+                    //case 'r':
+                    //    if (!g_isGradient) {
+                    //        // 將房間換成紅色系照明
+                    //        g_light.setAmbient(reds[0]);
+                    //        g_light.setDiffuse(reds[1]);
+                    //        g_light.setSpecular(reds[2]);
+                    //        std::cout << "紅色系房間" << std::endl << std::endl;
+                    //    }
+                    //    break;
+                    //case 'G':
+                    //case 'g':
+                    //    if (!g_isGradient) {
+                    //        // 將房間換成綠色系照明
+                    //        g_light.setAmbient(greens[0]);
+                    //        g_light.setDiffuse(greens[1]);
+                    //        g_light.setSpecular(greens[2]);
+                    //        std::cout << "綠色系房間" << std::endl << std::endl;
+                    //    }
+                    //    break;
+                    //case 'B':
+                    //case 'b':
+                    //    if (!g_isGradient) {
+                    //        // 將房間換成藍色系照明
+                    //        g_light.setAmbient(blues[0]);
+                    //        g_light.setDiffuse(blues[1]);
+                    //        g_light.setSpecular(blues[2]);
+                    //        std::cout << "藍色系房間" << std::endl << std::endl;
+                    //    }
+                    //    break;
+                    //case 'H':
+                    //case 'h':
+                    //    // 將房間換成預設照明
+                    //    if (!g_isGradient) {
+                    //        g_light.setAmbient(glm::vec4(0.1f));
+                    //        g_light.setDiffuse(glm::vec4(0.8f));
+                    //        g_light.setSpecular(glm::vec4(1.0f));
+                    //        std::cout << "預設房間" << std::endl << std::endl;
+                    //    }
+                    //    break;
+                case 'L':
+                case 'l':
+                    // 是否漸變照明色彩
+                    g_isGradient = !g_isGradient;
+                    if (!g_isGradient) {
+                        g_colorTime = 0.0f;
+                        std::cout << "關閉自動變色" << std::endl << std::endl;
+                    }
+                    else std::cout << "開啟自動變色" << std::endl << std::endl;
+                    break;
+                }
             }
-        
+        }
+        else if (action == GLFW_RELEASE) {
+            // 檢查 Shift 鍵(左右兩邊各一個)是否被按下
+            bool isShiftPressed = (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) ||
+                (glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS);
+            // 判斷字母鍵的大小寫，預設使用鍵盤是沒有按下 CAPS 鍵
+            if (key >= GLFW_KEY_A && key <= GLFW_KEY_Z) {
+                char letter = (isShiftPressed) ? ('A' + (key - GLFW_KEY_A)) : ('a' + (key - GLFW_KEY_A));
+                //std::cout << "key = " << letter << std::endl;
+                switch (letter) {
+                case 'W':
+                case 'w':
+                case 'S':
+                case 's':
+                case 'A':
+                case 'a':
+                case 'D':
+                case 'd':
+                    CCamera::getInstance().setIsWalking(false);
+                    break;
+                }
+            }
+
+        }
     }
 }

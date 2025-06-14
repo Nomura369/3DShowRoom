@@ -14,6 +14,9 @@ CCamera& CCamera::getInstance()
 
 CCamera::CCamera()
 {
+	_walkTime = 0.0f;
+	_isWalking = false;
+
 	_theta = 0; _phi = 0;	 // 角度由  updateViewCenter 來計算 
 	_radius = 0.0f; // 半徑由  updateViewCenter 來計算
 
@@ -43,6 +46,16 @@ void CCamera::updateOrthographic(float left, float right, float bottom, float to
 	_mxProj = glm::ortho(left, right, bottom, top, zNear, zFar);
 	_type = Type::ORTHOGRAPHIC;
 	_bprojUpdate = true;
+}
+
+void CCamera::update(float dt) {
+	if (_isWalking) {
+		_walkTime += dt;
+	}
+	else {
+		_walkTime = 0.0f;
+	}
+	updateViewMatrix();
 }
 
 void CCamera::processMouseMovement(float deltaX, float deltaY, float sensitivity)
@@ -130,6 +143,21 @@ void CCamera::updateViewCenter(const glm::vec3& view, const glm::vec3& center)
 
 void CCamera::updateViewMatrix()
 {
+	if (_isWalking) {
+		// 晃動的頻率與振幅
+		float frequency = 5.0f;
+		float amplitude = 0.04f;
+		float walkOffset = sin(_walkTime * frequency) * amplitude; 
+		float baseY = _center.y + _radius * cos(_phi);
+		_view.y = glm::mix(_view.y, baseY + walkOffset, 0.1f);  // 用 mix 平滑過渡
+	}
+	else {
+		_view.y = _center.y + _radius * cos(_phi);
+	}
+
+	_view.x = _center.x + _radius * sin(_phi) * cos(_theta);
+	_view.z = _center.z + _radius * sin(_phi) * sin(_theta);
+
 	_mxView = glm::lookAt(_view, _center, _up);
 	_bviewUpdate = true;
 }
@@ -140,6 +168,7 @@ void CCamera::updateViewMatrix(float theta, float phi)
 	_view.x = _center.x + _radius * sin(phi) * cos(theta);
 	_view.y = _center.y + _radius * cos(phi);
 	_view.z = _center.z + _radius * sin(phi) * sin(theta);
+
 	_mxView = glm::lookAt(_view, _center, _up);
 	_bviewUpdate = true;
 }
@@ -186,4 +215,12 @@ glm::vec3& CCamera::getUpVector() {
 
 float CCamera::getRadius() { 
 	return _radius; 
+}
+
+bool CCamera::getIsWalking() {
+	return _isWalking;
+}
+
+void CCamera::setIsWalking(bool isWalking) {
+	_isWalking = isWalking;
 }
