@@ -28,6 +28,8 @@
 #include "../models/CCapsule.h"
 #include "../models/CCup.h"
 #include "../models/CShape.h"
+#include "../models/CDonut.h"
+#include "../models/CTeapot.h"
 
 #include "common/CLight.h"
 #include "common/CMaterial.h"
@@ -39,16 +41,27 @@
 #define ROOM_NUM 6
 
 // 一般模型宣告區
-//CCapsule g_capsule;
-//CCup g_cup;
-//CTorusKnot g_knot(4);
+CCapsule g_capsule[2];
+CCup g_cup[3];
+CTorusKnot g_knot[4] = {
+    CTorusKnot(4),
+    CTorusKnot(4),
+    CTorusKnot(4),
+    CTorusKnot(4),
+};
+CDonut g_donut[5];
+CTeapot g_teapot[6] = {
+    CTeapot(5), CTeapot(5), CTeapot(5),
+    CTeapot(5), CTeapot(5), CTeapot(5),
+};
+
 CBox g_room[ROOM_NUM];
 CQuad g_walls[ROOM_NUM * 4]; // 所有房間的牆面
 CQuad g_floor[ROOM_NUM]; // 所有房間的地板
 CSphere g_sphere;
 
 // obj 檔模型宣告區
-//CObjModel g_objModel;
+CObjModel g_objModel;
 
 // 鏡頭與場景宣告區
 glm::vec3 g_eyeloc(6.0f, 6.0f, 6.0f); // 鏡頭位置, 預設在 (8,8,8) 
@@ -80,7 +93,7 @@ CMaterial g_matWoodLightOak;
 CMaterial g_matWoodBleached;
 
 // 貼圖宣告區
-TextureData g_texData[2]; 
+TextureData g_texData[3]; 
 
 // 2D 素材宣告區
 //std::array<CButton, 4> g_button = {
@@ -137,30 +150,78 @@ void loadScene(void)
     // 設定貼圖
     g_texData[0] = CTexturePool::getInstance().getTexture("texture/wall.png", true); // 開啟 mipmap
     g_texData[1] = CTexturePool::getInstance().getTexture("texture/floor.png"); // 不開啟 mipmap
+    g_texData[2] = CTexturePool::getInstance().getTexture("texture/wood.png"); // 不開啟 mipmap
 
-    //g_capsule.setupVertexAttributes();
-    //g_capsule.setShaderID(g_shadingProg, 3);
-    //g_capsule.setPos(glm::vec3(8.0f, 0.5f, -8.0f));
-    //g_capsule.setRotate(90, glm::vec3(1, 0, 0));
-    //g_capsule.setMaterial(g_matWaterRed);
+    // 設定模型
+    for (int i = 0; i < 2; i++) {
+        g_capsule[i].setupVertexAttributes();
+        g_capsule[i].setShaderID(g_shadingProg, 3);
+        g_capsule[i].setRotate(90, glm::vec3(1, 0, 0));
+        g_capsule[i].setRotate(90, glm::vec3(0, 0, 1));
+        g_capsule[i].setScale(glm::vec3(1.5f, 1.5f, 1.5f));
+        g_capsule[i].setMaterial(g_matWaterRed);
+    }
+    g_capsule[0].setPos(glm::vec3(-30.1f, 0.7f, -1.5f));
+    g_capsule[1].setPos(glm::vec3(-30.1f, 0.7f, 1.5f));
+    
 
-    //g_cup.setupVertexAttributes();
-    //g_cup.setShaderID(g_shadingProg, 3);
-    //g_cup.setPos(glm::vec3(-8.0f, 0.5f, -8.0f));
-    //g_cup.setMaterial(g_matWaterBlue);
+    for (int i = 0; i < 3; i++) {
+        g_cup[i].setupVertexAttributes();
+        g_cup[i].setShaderID(g_shadingProg, 3);
+        g_cup[i].setScale(glm::vec3(1.5f, 1.5f, 1.5f));
+        g_cup[i].setMaterial(g_matWaterBlue);
+    }
+    g_cup[0].setPos(glm::vec3(3.0f, 0.5f, -30.1f));
+    g_cup[1].setPos(glm::vec3(-1.5f, 0.5f, -30.1f + 2.598f));
+    g_cup[2].setPos(glm::vec3(-1.5f, 0.5f, -30.1f - 2.598f));
 
-    //g_objModel.setupVertexAttributes();
-    //g_objModel.setShaderID(g_shadingProg, 3);
-    //g_objModel.setScale(glm::vec3(5.0f, 5.0f, 5.0f));
-    //g_objModel.setPos(glm::vec3(0.0f, 0.0005f, 0.0f)); // 房間正中間
-    //g_objModel.setMaterial(g_matWoodLightOak);
+    g_objModel.setupVertexAttributes();
+    g_objModel.setShaderID(g_shadingProg, 3);
+    g_objModel.setScale(glm::vec3(5.0f, 5.0f, 5.0f));
+    g_objModel.setPos(glm::vec3(0.0f, 0.0005f, 0.0f)); // 房間1正中間
+    g_objModel.setMaterial(g_matWoodLightOak);
+    g_objModel.setTextureMode(CShape::TEX_DIFFUSE);
  
-    //g_knot.setupVertexAttributes();
-    //g_knot.setShaderID(g_shadingProg, 3);
-    //g_knot.setScale(glm::vec3(0.4f, 0.4f, 0.4f));
-    //g_knot.setPos(glm::vec3(0.0f, 0.5f, 8.0f));
-    //g_knot.setMaterial(g_matWaterGreen);
+    for (int i = 0; i < 4; i++) {
+        g_knot[i].setupVertexAttributes();
+        g_knot[i].setShaderID(g_shadingProg, 3);
+        g_knot[i].setScale(glm::vec3(0.7f, 0.7f, 0.7f));
+        g_knot[i].setMaterial(g_matWaterGreen);
+    }
+    g_knot[0].setPos(glm::vec3(-27.1f, 0.8f, -30.1f));
+    g_knot[1].setPos(glm::vec3(-30.1f, 0.8f, -27.1f));
+    g_knot[2].setPos(glm::vec3(-33.1f, 0.8f, -30.1f));
+    g_knot[3].setPos(glm::vec3(-30.1f, 0.8f, -33.1f));
 
+    for (int i = 0; i < 5; i++) {
+        g_donut[i].setupVertexAttributes();
+        g_donut[i].setShaderID(g_shadingProg, 3);
+        g_donut[i].setScale(glm::vec3(2.0f, 2.0f, 2.0f));
+        g_donut[i].setMaterial(g_matWoodHoney);
+    }
+    g_donut[0].setPos(glm::vec3(4.0f, 0.5f, -60.2f));
+    g_donut[1].setPos(glm::vec3(1.24f, 0.5f, -56.41f));
+    g_donut[2].setPos(glm::vec3(-3.24f, 0.5f, -58.27f));
+    g_donut[3].setPos(glm::vec3(-3.24f, 0.5f, -62.13f));
+    g_donut[4].setPos(glm::vec3(1.24f, 0.5f, -63.99f));
+
+    for (int i = 0; i < 6; i++) {
+        g_teapot[i].setupVertexAttributes();
+        g_teapot[i].setShaderID(g_shadingProg, 3);
+        g_teapot[i].setScale(glm::vec3(0.65f, 0.65f, 0.65f));
+        g_teapot[i].setMaterial(g_matGray);
+        if (i >= 2 && i <= 4) {
+            g_teapot[i].setRotate(180, glm::vec3(0, 1, 0));
+        }
+    } 
+    g_teapot[0].setPos(glm::vec3(-26.1f, 0.5f, -60.2f));   
+    g_teapot[1].setPos(glm::vec3(-28.1f, 0.5f, -57.736f)); 
+    g_teapot[2].setPos(glm::vec3(-32.1f, 0.5f, -57.736f)); 
+    g_teapot[3].setPos(glm::vec3(-34.1f, 0.5f, -60.2f));   
+    g_teapot[4].setPos(glm::vec3(-32.1f, 0.5f, -62.664f)); 
+    g_teapot[5].setPos(glm::vec3(-28.1f, 0.5f, -62.664f)); 
+    
+    // 設定場景
     glm::vec3 roomPos(0.0f, 5.95f, 0.0f);
     glm::vec3 offsetX(-30.1f, 0.0f, 0.0f);
     glm::vec3 offsetZ(0.0f, 0.0f, -30.1f);
@@ -308,6 +369,41 @@ void render(void)
         g_walls[i].uploadMaterial();
         g_walls[i].uploadTextureFlags();
         g_walls[i].drawRaw();
+    }
+
+    glBindTexture(GL_TEXTURE_2D, g_texData[2].id); // 綁定貼圖 
+    g_objModel.uploadMaterial();
+    g_objModel.uploadTextureFlags();
+    g_objModel.drawRaw();
+
+    glBindTexture(GL_TEXTURE_2D, 0); // 不綁定貼圖
+    for (int i = 0; i < 2; i++) {
+        g_capsule[i].uploadMaterial();
+        g_capsule[i].drawRaw();
+    }
+
+    glBindTexture(GL_TEXTURE_2D, 0); // 不綁定貼圖
+    for (int i = 0; i < 3; i++) {
+        g_cup[i].uploadMaterial();
+        g_cup[i].drawRaw();
+    }
+
+    glBindTexture(GL_TEXTURE_2D, 0); // 不綁定貼圖
+    for (int i = 0; i < 4; i++) {
+        g_knot[i].uploadMaterial();
+        g_knot[i].drawRaw();
+    }
+
+    glBindTexture(GL_TEXTURE_2D, 0); // 不綁定貼圖
+    for (int i = 0; i < 5; i++) {
+        g_donut[i].uploadMaterial();
+        g_donut[i].drawRaw();
+    }
+
+    glBindTexture(GL_TEXTURE_2D, 0); // 不綁定貼圖
+    for (int i = 0; i < 6; i++) {
+        g_teapot[i].uploadMaterial();
+        g_teapot[i].drawRaw();
     }
 
     /*glUseProgram(g_uiShadingProg);

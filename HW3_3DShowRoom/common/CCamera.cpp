@@ -145,7 +145,7 @@ void CCamera::updateViewMatrix()
 {
 	if (_isWalking) {
 		// 晃動的頻率與振幅
-		float frequency = 5.0f;
+		float frequency = 8.0f;
 		float amplitude = 0.04f;
 		float walkOffset = sin(_walkTime * frequency) * amplitude; 
 		float baseY = _center.y + _radius * cos(_phi);

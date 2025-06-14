@@ -74,10 +74,10 @@ void moveForward(bool isForward) {
     glm::vec3 eyeloc = g_eyeloc + front * speed * direction;
     glm::vec3 centerloc = centerPos + front * speed * direction;
 
-    if (allRooms.isInsideRoom(eyeloc) && allRooms.isInsideRoom(centerloc)) {
+    /*if (allRooms.isInsideRoom(eyeloc) && allRooms.isInsideRoom(centerloc)) {*/
         g_eyeloc = eyeloc;
         g_centerloc.setPos(centerloc);
-    }
+    /*}*/
 
     // 更新攝影機與 view matrix
     CCamera::getInstance().updateViewCenter(g_eyeloc, g_centerloc.getPos());
@@ -99,10 +99,10 @@ void moveRight(bool isRight) {
     glm::vec3 eyeloc = g_eyeloc + right * speed * direction;
     glm::vec3 centerloc = centerPos + right * speed * direction;
 
-    if (allRooms.isInsideRoom(eyeloc) && allRooms.isInsideRoom(centerloc)) {
+    /*if (allRooms.isInsideRoom(eyeloc) && allRooms.isInsideRoom(centerloc)) {*/
         g_eyeloc = eyeloc;
         g_centerloc.setPos(centerloc);
-    }
+    /*}*/
 
     // 更新攝影機與 view matrix
     CCamera::getInstance().updateViewCenter(g_eyeloc, g_centerloc.getPos());
