@@ -93,7 +93,7 @@ CMaterial g_matWoodLightOak;
 CMaterial g_matWoodBleached;
 
 // 貼圖宣告區
-TextureData g_texData[3]; 
+TextureData g_texData[4]; 
 
 // 2D 素材宣告區
 //std::array<CButton, 4> g_button = {
@@ -151,6 +151,7 @@ void loadScene(void)
     g_texData[0] = CTexturePool::getInstance().getTexture("texture/wall.png", true); // 開啟 mipmap
     g_texData[1] = CTexturePool::getInstance().getTexture("texture/floor.png"); // 不開啟 mipmap
     g_texData[2] = CTexturePool::getInstance().getTexture("texture/wood.png"); // 不開啟 mipmap
+    g_texData[3] = CTexturePool::getInstance().getTexture("texture/bread.png"); // 開啟 mipmap
 
     // 設定模型
     for (int i = 0; i < 2; i++) {
@@ -160,6 +161,7 @@ void loadScene(void)
         g_capsule[i].setRotate(90, glm::vec3(0, 0, 1));
         g_capsule[i].setScale(glm::vec3(1.5f, 1.5f, 1.5f));
         g_capsule[i].setMaterial(g_matWaterRed);
+        g_capsule[i].setTextureMode(CShape::TEX_DIFFUSE);
     }
     g_capsule[0].setPos(glm::vec3(-30.1f, 0.7f, -1.5f));
     g_capsule[1].setPos(glm::vec3(-30.1f, 0.7f, 1.5f));
@@ -198,6 +200,7 @@ void loadScene(void)
         g_donut[i].setShaderID(g_shadingProg, 3);
         g_donut[i].setScale(glm::vec3(2.0f, 2.0f, 2.0f));
         g_donut[i].setMaterial(g_matWoodHoney);
+        g_donut[i].setTextureMode(CShape::TEX_DIFFUSE);
     }
     g_donut[0].setPos(glm::vec3(4.0f, 0.5f, -60.2f));
     g_donut[1].setPos(glm::vec3(1.24f, 0.5f, -56.41f));
@@ -379,6 +382,7 @@ void render(void)
     glBindTexture(GL_TEXTURE_2D, 0); // 不綁定貼圖
     for (int i = 0; i < 2; i++) {
         g_capsule[i].uploadMaterial();
+        g_capsule[i].uploadTextureFlags();
         g_capsule[i].drawRaw();
     }
 
@@ -394,9 +398,10 @@ void render(void)
         g_knot[i].drawRaw();
     }
 
-    glBindTexture(GL_TEXTURE_2D, 0); // 不綁定貼圖
+    glBindTexture(GL_TEXTURE_2D, g_texData[3].id); // 綁定貼圖 
     for (int i = 0; i < 5; i++) {
         g_donut[i].uploadMaterial();
+        g_donut[i].uploadTextureFlags();
         g_donut[i].drawRaw();
     }
 
