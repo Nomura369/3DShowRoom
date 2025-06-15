@@ -27,7 +27,7 @@ float g_mouseSens = 0.005f;   // 位移鏡頭的靈敏度
 extern CCube g_centerloc;
 extern GLuint g_shadingProg;
 extern glm::vec3 g_eyeloc;
-//extern CLight g_light;
+extern CLight g_flashlight;
 
 extern CMaterial g_matWaterGreen;
 extern CSphere  g_sphere; 
@@ -206,28 +206,15 @@ void scrollCallback(GLFWwindow* window, double xoffset, double yoffset) {
 //           搭配檢查左右 shift 鍵是否按下是大寫還是小寫(假設 caps 鍵沒有被按下)
 //       
 void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
-    // 紅色系照明（依照 ambient、diffuse 和 specular 的順序）
-    glm::vec4 reds[3] = { glm::vec4(0.15f, 0.05f, 0.05f, 1.0f),
-                          glm::vec4(0.8f, 0.2f, 0.2f, 1.0f),
-                          glm::vec4(0.9f, 0.4f, 0.4f, 1.0f)
-    };
-    // 綠色系照明
-    glm::vec4 greens[3] = { glm::vec4(0.05f, 0.15f, 0.05f, 1.0f),
-                            glm::vec4(0.2f, 0.8f, 0.2f, 1.0f),
-                            glm::vec4(0.4f, 0.9f, 0.4f, 1.0f)
-    };
-    // 藍色系照明
-    glm::vec4 blues[3] = { glm::vec4(0.05f, 0.05f, 0.15f, 1.0f),
-                           glm::vec4(0.2f, 0.2f, 0.8f, 1.0f),
-                           glm::vec4(0.4f, 0.4f, 0.9f, 1.0f)
-    };
-
     switch (key)
     {
     case GLFW_KEY_ESCAPE:
         if (action == GLFW_PRESS) { glfwSetWindowShouldClose(window, true); }
         break;
-    case GLFW_KEY_SPACE:
+    case GLFW_KEY_SPACE: // 按下空白鍵使用道具
+        if (action == GLFW_PRESS) {
+            g_flashlight.setLightOn(!g_flashlight.isLightOn());
+        }
         break;
     default: // 針對英文字母大小寫進行處理
         if (action == GLFW_PRESS || action == GLFW_REPEAT) {
@@ -259,78 +246,17 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
                     CCamera::getInstance().setIsWalking(true);
                     moveRight(true);
                     break;
-                case 'N':
-                case 'n':
-                    // 切換照明風格（是否為卡通）
-                    g_isNpr = !g_isNpr;
-                    if (g_isNpr) {
-                        std::cout << "目前為 NPR 模式" << std::endl << std::endl;
-                    }
-                    else {
-                        std::cout << "目前為 Per-Pixel Lighting 模式" << std::endl << std::endl;
-                    }
-                    break;
-                    //case 'C':
-                    //case 'c':
-                    //    // 切換位移視角
-                    //    g_isCameraBasedMoving = !g_isCameraBasedMoving;
-                    //    if (g_isCameraBasedMoving) {
-                    //        std::cout << "目前以「鏡頭方向」進行位移" << std::endl << std::endl;
-                    //    }
-                    //    else {
-                    //        std::cout << "目前以「世界座標方向」進行位移" << std::endl << std::endl;
-                    //    }
-                    //    break;
-                    //case 'R':
-                    //case 'r':
-                    //    if (!g_isGradient) {
-                    //        // 將房間換成紅色系照明
-                    //        g_light.setAmbient(reds[0]);
-                    //        g_light.setDiffuse(reds[1]);
-                    //        g_light.setSpecular(reds[2]);
-                    //        std::cout << "紅色系房間" << std::endl << std::endl;
-                    //    }
-                    //    break;
-                    //case 'G':
-                    //case 'g':
-                    //    if (!g_isGradient) {
-                    //        // 將房間換成綠色系照明
-                    //        g_light.setAmbient(greens[0]);
-                    //        g_light.setDiffuse(greens[1]);
-                    //        g_light.setSpecular(greens[2]);
-                    //        std::cout << "綠色系房間" << std::endl << std::endl;
-                    //    }
-                    //    break;
-                    //case 'B':
-                    //case 'b':
-                    //    if (!g_isGradient) {
-                    //        // 將房間換成藍色系照明
-                    //        g_light.setAmbient(blues[0]);
-                    //        g_light.setDiffuse(blues[1]);
-                    //        g_light.setSpecular(blues[2]);
-                    //        std::cout << "藍色系房間" << std::endl << std::endl;
-                    //    }
-                    //    break;
-                    //case 'H':
-                    //case 'h':
-                    //    // 將房間換成預設照明
-                    //    if (!g_isGradient) {
-                    //        g_light.setAmbient(glm::vec4(0.1f));
-                    //        g_light.setDiffuse(glm::vec4(0.8f));
-                    //        g_light.setSpecular(glm::vec4(1.0f));
-                    //        std::cout << "預設房間" << std::endl << std::endl;
-                    //    }
-                    //    break;
-                case 'L':
-                case 'l':
-                    // 是否漸變照明色彩
-                    g_isGradient = !g_isGradient;
-                    if (!g_isGradient) {
-                        g_colorTime = 0.0f;
-                        std::cout << "關閉自動變色" << std::endl << std::endl;
-                    }
-                    else std::cout << "開啟自動變色" << std::endl << std::endl;
-                    break;
+                //case 'N':
+                //case 'n':
+                //    // 切換照明風格（是否為卡通）
+                //    g_isNpr = !g_isNpr;
+                //    if (g_isNpr) {
+                //        std::cout << "目前為 NPR 模式" << std::endl << std::endl;
+                //    }
+                //    else {
+                //        std::cout << "目前為 Per-Pixel Lighting 模式" << std::endl << std::endl;
+                //    }
+                //    break;
                 }
             }
         }

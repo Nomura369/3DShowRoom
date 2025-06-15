@@ -79,6 +79,8 @@ std::array<CLight, ROOM_NUM> g_lights = {
     CLight (glm::vec3(0.0f, 10.0f, -60.2f)),
     CLight(glm::vec3(-30.1f, 10.0f, -60.2f)),
 };
+// 手電筒，聚光燈形式（從略低於相機的位置出發，往視線前方照）
+CLight g_flashlight(glm::vec3(6.0f, 5.0f, 6.0f), glm::vec3(0.0f, 4.0f, 0.0f)); 
 
 //bool g_bOnBtnActive[4] = { false, false, false, false }; // 判斷按鈕們是否被按下
 
@@ -134,17 +136,14 @@ void loadScene(void)
     g_lights[4].setShaderID(g_shadingProg, "uLight[4]");
     g_lights[5].setShaderID(g_shadingProg, "uLight[5]");
     for (int i = 0; i < ROOM_NUM; i++) {
-        g_lights[i].setIntensity(0.2f);
+        g_lights[i].setIntensity(0.1f);
     }
-    
-    //g_capSpotLight.setShaderID(g_shadingProg, "uLight[1]");
-    //g_capSpotLight.setCutOffDeg(20.0f, 60.0f, 1.5f); // 第三引數為聚焦指數（optional）
-    //g_cupSpotLight.setShaderID(g_shadingProg, "uLight[2]");
-    //g_cupSpotLight.setCutOffDeg(20.0f, 60.0f, 1.5f);
-    //g_knotSpotLight.setShaderID(g_shadingProg, "uLight[3]");
-    //g_knotSpotLight.setCutOffDeg(20.0f, 60.0f, 1.5f);
 
-    glUniform1i(glGetUniformLocation(g_shadingProg, "uLightNum"), ROOM_NUM);
+    g_flashlight.setShaderID(g_shadingProg, "uLight[6]");
+    g_flashlight.setCutOffDeg(20.0f, 35.0f, 20.0f); // 第三引數為聚焦指數（optional）
+    g_flashlight.setIntensity(0.4f);
+
+    glUniform1i(glGetUniformLocation(g_shadingProg, "uLightNum"), ROOM_NUM + 1);
     glUniform1i(glGetUniformLocation(g_shadingProg, "uIsNpr"), 0); // 切換照明風格（是否為卡通）
 
     // 設定貼圖
@@ -161,7 +160,7 @@ void loadScene(void)
         g_capsule[i].setRotate(90, glm::vec3(0, 0, 1));
         g_capsule[i].setScale(glm::vec3(1.5f, 1.5f, 1.5f));
         g_capsule[i].setMaterial(g_matWaterRed);
-        g_capsule[i].setTextureMode(CShape::TEX_DIFFUSE);
+        g_capsule[i].setTextureMode(CShape::TEX_NONE);
     }
     g_capsule[0].setPos(glm::vec3(-30.1f, 0.7f, -1.5f));
     g_capsule[1].setPos(glm::vec3(-30.1f, 0.7f, 1.5f));
@@ -172,6 +171,7 @@ void loadScene(void)
         g_cup[i].setShaderID(g_shadingProg, 3);
         g_cup[i].setScale(glm::vec3(1.5f, 1.5f, 1.5f));
         g_cup[i].setMaterial(g_matWaterBlue);
+        g_cup[i].setTextureMode(CShape::TEX_NONE);
     }
     g_cup[0].setPos(glm::vec3(3.0f, 0.5f, -30.1f));
     g_cup[1].setPos(glm::vec3(-1.5f, 0.5f, -30.1f + 2.598f));
@@ -189,6 +189,7 @@ void loadScene(void)
         g_knot[i].setShaderID(g_shadingProg, 3);
         g_knot[i].setScale(glm::vec3(0.7f, 0.7f, 0.7f));
         g_knot[i].setMaterial(g_matWaterGreen);
+        g_knot[i].setTextureMode(CShape::TEX_NONE);
     }
     g_knot[0].setPos(glm::vec3(-27.1f, 0.8f, -30.1f));
     g_knot[1].setPos(glm::vec3(-30.1f, 0.8f, -27.1f));
@@ -213,6 +214,7 @@ void loadScene(void)
         g_teapot[i].setShaderID(g_shadingProg, 3);
         g_teapot[i].setScale(glm::vec3(0.65f, 0.65f, 0.65f));
         g_teapot[i].setMaterial(g_matGray);
+        g_teapot[i].setTextureMode(CShape::TEX_NONE);
         if (i >= 2 && i <= 4) {
             g_teapot[i].setRotate(180, glm::vec3(0, 1, 0));
         }
@@ -339,6 +341,7 @@ void render(void)
     for (int i = 0; i < ROOM_NUM; i++) {
         g_lights[i].updateToShader();
     }
+    g_flashlight.updateToShader();
     glUniform3fv(glGetUniformLocation(g_shadingProg, "viewPos"), 1, glm::value_ptr(g_eyeloc));
     glUniform3fv(glGetUniformLocation(g_shadingProg, "lightPos"), 1, glm::value_ptr(g_lights[0].getPos())); // 選一個光源當代表就好
 
@@ -351,6 +354,7 @@ void render(void)
     for (int i = 0; i < ROOM_NUM; i++) {
         g_lights[i].drawRaw();
     }
+    //g_flashlight.drawRaw(); // 不用特別畫立方體出來
     
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, 0); // 不綁定貼圖
@@ -389,12 +393,14 @@ void render(void)
     glBindTexture(GL_TEXTURE_2D, 0); // 不綁定貼圖
     for (int i = 0; i < 3; i++) {
         g_cup[i].uploadMaterial();
+        g_cup[i].uploadTextureFlags();
         g_cup[i].drawRaw();
     }
 
     glBindTexture(GL_TEXTURE_2D, 0); // 不綁定貼圖
     for (int i = 0; i < 4; i++) {
         g_knot[i].uploadMaterial();
+        g_knot[i].uploadTextureFlags();
         g_knot[i].drawRaw();
     }
 
@@ -408,6 +414,7 @@ void render(void)
     glBindTexture(GL_TEXTURE_2D, 0); // 不綁定貼圖
     for (int i = 0; i < 6; i++) {
         g_teapot[i].uploadMaterial();
+        g_teapot[i].uploadTextureFlags();
         g_teapot[i].drawRaw();
     }
 
@@ -450,8 +457,17 @@ void update(float dt)
     for (int i = 0; i < ROOM_NUM; i++) {
         g_lights[i].update(dt);
     }
-
+    
     CCamera::getInstance().update(dt);
+    
+    // 更新手電筒
+    glm::vec3 camPos = CCamera::getInstance().getViewLocation();
+    glm::vec3 camFront = glm::normalize(g_centerloc.getPos() - CCamera::getInstance().getViewLocation());
+    glm::vec3 flashlightPos = camPos + glm::vec3(0.0f, -0.1f, 0.0f); // 往下偏一點（像是手持）
+    glm::vec3 flashlightTarget = flashlightPos + camFront;
+    g_flashlight.setPos(flashlightPos);
+    g_flashlight.setTarget(flashlightTarget);
+
 }
 
 void releaseAll()
@@ -502,11 +518,11 @@ int main() {
     // 呼叫 loadScene() 建立與載入 GPU 進行描繪的幾何資料 
     loadScene();
 
-    std::cout << "wasd/WASD 移動" << std::endl;
-    std::cout << "可以穿透相對暗的牆面" << std::endl;
-    std::cout << "而相對亮的無法通過" << std::endl << std::endl;
+    std::cout << "1. wasd/WASD 移動" << std::endl;
+    std::cout << "   可以穿透相對暗的牆面" << std::endl;
+    std::cout << "   而相對亮的無法通過" << std::endl;
+    std::cout << "2. space 使用道具（開關手電筒或發射子彈）" << std::endl << std::endl;
     /*std::cout << "n/N 切換照明模式" << std::endl;
-    std::cout << "c/C 切換位移方式" << std::endl;
     std::cout << "rgb/RGB 改變點光源色調" << std::endl;
     std::cout << "h/H 重設點光源色調" << std::endl;
     std::cout << "l/L 自動漸變點光源色調" << std::endl << std::endl;*/

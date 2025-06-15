@@ -1,5 +1,5 @@
 #version 330 core
-#define MAX_LIGHT_NUM 6
+#define MAX_LIGHT_NUM 8
 
 // 有貼圖版本
 in vec3 vColor;
