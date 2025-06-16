@@ -14,4 +14,5 @@ public:
 	virtual void reset() override;
 	virtual void update(float dt) override;
 	void setAutoRotate();
+	void setPoints(bool front = true, bool back = true, bool left = true, bool right = true);
 };

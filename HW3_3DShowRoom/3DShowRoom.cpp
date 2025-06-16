@@ -228,16 +228,25 @@ void loadScene(void)
     
     // 設定場景
     glm::vec3 roomPos(0.0f, 5.95f, 0.0f);
-    glm::vec3 offsetX(-30.1f, 0.0f, 0.0f);
-    glm::vec3 offsetZ(0.0f, 0.0f, -30.1f);
-    for (int room = 0; room < ROOM_NUM; ++room) {
+    glm::vec3 offsetX(-30.05f, 0.0f, 0.0f);
+    glm::vec3 offsetZ(0.0f, 0.0f, -30.05f);
+    for (int room = 0; room < ROOM_NUM; room++) {
+        int row = room % 3; // Z軸方向（前後）
+        int col = room % 2; // X軸方向（左右）
+
+        bool drawFront = (row == 0); // 最後排才畫 front
+        bool drawBack = (row == 2); // 最前排才畫 back
+        bool drawLeft = (col == 1); // 中間會少一面牆
+        bool drawRight = (col == 0); // 中間會少另一面牆
+
+        g_room[room].setPoints(drawFront, drawBack, drawLeft, drawRight);
         g_room[room].setupVertexAttributes();
         g_room[room].setShaderID(g_shadingProg, 3);
         g_room[room].setScale(glm::vec3(30.0f, 12.0f, 30.0f));
         g_room[room].setMaterial(g_matWoodBleached);
 
-        // 將房間放置在 3x2 矩陣中
-        glm::vec3 offset = offsetX * (float)(room % 2) + offsetZ * (float)(room / 2);
+        // 相當於將房間置於 2 * 3 的矩陣中
+        glm::vec3 offset = offsetX * (float)(col)+offsetZ * (float)(row);
         g_room[room].setPos(roomPos + offset);
     }
 
@@ -255,44 +264,44 @@ void loadScene(void)
         g_floor[floor].setPos(floorPos + offset);
     }
     
-    for (int room = 0; room < ROOM_NUM; ++room) {
-        glm::vec3 offset = offsetX * (float)(room % 2) + offsetZ * (float)(room / 2);
+    //for (int room = 0; room < ROOM_NUM; ++room) {
+    //    glm::vec3 offset = offsetX * (float)(room % 2) + offsetZ * (float)(room / 2);
 
-        for (int side = 0; side < 4; ++side) {
-            int idx = room * 4 + side;
+    //    for (int side = 0; side < 4; ++side) {
+    //        int idx = room * 4 + side;
 
-            g_walls[idx].setupVertexAttributes();
-            g_walls[idx].setShaderID(g_shadingProg, 3);
-            g_walls[idx].setScale(glm::vec3(30.0f, 12.0f, 30.0f));
-            g_walls[idx].setMaterial(g_matWoodBleached);
-            g_walls[idx].setTextureMode(CShape::TEX_DIFFUSE);
+    //        g_walls[idx].setupVertexAttributes();
+    //        g_walls[idx].setShaderID(g_shadingProg, 3);
+    //        g_walls[idx].setScale(glm::vec3(30.0f, 12.0f, 30.0f));
+    //        g_walls[idx].setMaterial(g_matWoodBleached);
+    //        g_walls[idx].setTextureMode(CShape::TEX_DIFFUSE);
 
-            glm::vec3 wallPos;
-            float rotationY = 0.0f;
+    //        glm::vec3 wallPos;
+    //        float rotationY = 0.0f;
 
-            switch (side) {
-            case 0: // 右牆
-                wallPos = glm::vec3(0.0f, 0.0f, 14.95f);
-                rotationY = 0.0f + 180.0f;
-                break;
-            case 1: // 後牆
-                wallPos = glm::vec3(14.95f, 0.0f, 0.0f);
-                rotationY = 90.0f + 180.0f;
-                break;
-            case 2: // 左牆
-                wallPos = glm::vec3(0.0f, 0.0f, -14.95f);
-                rotationY = 180.0f - 180.0f;
-                break;
-            case 3: // 前牆
-                wallPos = glm::vec3(-14.95f, 0.0f, 0.0f);
-                rotationY = 270.0f - 180.0f;
-                break;
-            }
+    //        switch (side) {
+    //        case 0: // 右牆
+    //            wallPos = glm::vec3(0.0f, 0.0f, 14.95f);
+    //            rotationY = 0.0f + 180.0f;
+    //            break;
+    //        case 1: // 後牆
+    //            wallPos = glm::vec3(14.95f, 0.0f, 0.0f);
+    //            rotationY = 90.0f + 180.0f;
+    //            break;
+    //        case 2: // 左牆
+    //            wallPos = glm::vec3(0.0f, 0.0f, -14.95f);
+    //            rotationY = 180.0f - 180.0f;
+    //            break;
+    //        case 3: // 前牆
+    //            wallPos = glm::vec3(-14.95f, 0.0f, 0.0f);
+    //            rotationY = 270.0f - 180.0f;
+    //            break;
+    //        }
 
-            g_walls[idx].setPos(roomPos + offset + wallPos);
-            g_walls[idx].setRotate(rotationY, glm::vec3(0, 1, 0));
-        }
-    }
+    //        g_walls[idx].setPos(roomPos + offset + wallPos);
+    //        g_walls[idx].setRotate(rotationY, glm::vec3(0, 1, 0));
+    //    }
+    //}
     
     g_centerloc.setPos(glm::vec3(0.0f, 4.0f, 0.0f)); // 設定 center 位置
 
@@ -371,12 +380,12 @@ void render(void)
         g_floor[i].drawRaw();
     }
     
-    glBindTexture(GL_TEXTURE_2D, g_texData[0].id); // 綁定貼圖 
-    for (int i = 0; i < ROOM_NUM * 4; i++) {
-        g_walls[i].uploadMaterial();
-        g_walls[i].uploadTextureFlags();
-        g_walls[i].drawRaw();
-    }
+    //glBindTexture(GL_TEXTURE_2D, g_texData[0].id); // 綁定貼圖 
+    //for (int i = 0; i < ROOM_NUM * 4; i++) {
+    //    g_walls[i].uploadMaterial();
+    //    g_walls[i].uploadTextureFlags();
+    //    g_walls[i].drawRaw();
+    //}
 
     glBindTexture(GL_TEXTURE_2D, g_texData[2].id); // 綁定貼圖 
     g_objModel.uploadMaterial();

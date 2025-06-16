@@ -1,65 +1,13 @@
 #include <glew/include/GL/glew.h>
 #include <glm/gtc/type_ptr.hpp>
 
+#include <vector>
+
 #include "CBox.h"
 
 CBox::CBox() : CShape() 
 {
-	_vtxCount = 24; _vtxAttrCount = 11; _idxCount = 36;
-
-	_points = new GLfloat[_vtxCount * _vtxAttrCount]{
-		// Front face (柔和紅, z = +0.5, 法向量 (0,0,1))
-		-0.5f, -0.5f,  0.5f,  1.0f, 0.6f, 0.6f,  0.0f, 0.0f, -1.0f,  0.0f, 0.0f,  // 0
-		 0.5f, -0.5f,  0.5f,  1.0f, 0.6f, 0.6f,  0.0f, 0.0f, -1.0f,  1.0f, 0.0f,  // 1
-		 0.5f,  0.5f,  0.5f,  1.0f, 0.6f, 0.6f,  0.0f, 0.0f, -1.0f,  1.0f, 1.0f,  // 2
-		-0.5f,  0.5f,  0.5f,  1.0f, 0.6f, 0.6f,  0.0f, 0.0f, -1.0f,  0.0f, 1.0f,  // 3
-
-		// Back face (柔和綠, z = -0.5, 法向量 (0,0,-1))
-		 0.5f, -0.5f, -0.5f,  0.6f, 1.0f, 0.6f,  0.0f, 0.0f, 1.0f,  1.0f, 0.0f,  // 4
-		-0.5f, -0.5f, -0.5f,  0.6f, 1.0f, 0.6f,  0.0f, 0.0f, 1.0f,  0.0f, 0.0f,  // 5
-		-0.5f,  0.5f, -0.5f,  0.6f, 1.0f, 0.6f,  0.0f, 0.0f, 1.0f,  0.0f, 1.0f,  // 6
-		 0.5f,  0.5f, -0.5f,  0.6f, 1.0f, 0.6f,  0.0f, 0.0f, 1.0f,  1.0f, 1.0f,  // 7
-
-		 // Left face (柔和藍, x = -0.5, 法向量 (-1,0,0))
-		-0.5f, -0.5f, -0.5f,  0.6f, 0.6f, 1.0f, 1.0f, 0.0f, 0.0f,  0.0f, 0.0f,  // 8
-		-0.5f, -0.5f,  0.5f,  0.6f, 0.6f, 1.0f, 1.0f, 0.0f, 0.0f,  1.0f, 0.0f,  // 9
-		-0.5f,  0.5f,  0.5f,  0.6f, 0.6f, 1.0f, 1.0f, 0.0f, 0.0f,  1.0f, 1.0f,  // 10
-		-0.5f,  0.5f, -0.5f,  0.6f, 0.6f, 1.0f, 1.0f, 0.0f, 0.0f,  0.0f, 1.0f,  // 11
-
-		// Right face (柔和黃, x = 0.5, 法向量 (1,0,0))
-		 0.5f, -0.5f,  0.5f,  1.0f, 1.0f, 0.6f, -1.0f, 0.0f, 0.0f,  0.0f, 0.0f,  // 12
-		 0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 0.6f, -1.0f, 0.0f, 0.0f,  1.0f, 0.0f,  // 13
-		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 0.6f, -1.0f, 0.0f, 0.0f,  1.0f, 1.0f,  // 14
-		 0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 0.6f, -1.0f, 0.0f, 0.0f,  0.0f, 1.0f,  // 15
-
-		 // Top face (柔和品紅, y = 0.5, 法向量 (0,1,0))
-		-0.5f,  0.5f,  0.5f,  1.0f, 0.6f, 1.0f,  0.0f, -1.0f, 0.0f,  0.0f, 0.0f,  // 16
-		 0.5f,  0.5f,  0.5f,  1.0f, 0.6f, 1.0f,  0.0f, -1.0f, 0.0f,  1.0f, 0.0f,  // 17
-		 0.5f,  0.5f, -0.5f,  1.0f, 0.6f, 1.0f,  0.0f, -1.0f, 0.0f,  1.0f, 1.0f,  // 18
-		-0.5f,  0.5f, -0.5f,  1.0f, 0.6f, 1.0f,  0.0f, -1.0f, 0.0f,  0.0f, 1.0f,  // 19
-
-		// Bottom face (柔和青, y = -0.5, 法向量 (0,-1,0))
-		-0.5f, -0.5f, -0.5f,  0.6f, 1.0f, 1.0f,  0.0f, 1.0f, 0.0f,  0.0f, 0.0f,  // 20
-		 0.5f, -0.5f, -0.5f,  0.6f, 1.0f, 1.0f,  0.0f, 1.0f, 0.0f,  1.0f, 0.0f,  // 21
-		 0.5f, -0.5f,  0.5f,  0.6f, 1.0f, 1.0f,  0.0f, 1.0f, 0.0f,  1.0f, 1.0f,  // 22
-		-0.5f, -0.5f,  0.5f,  0.6f, 1.0f, 1.0f,  0.0f, 1.0f, 0.0f,  0.0f, 1.0f   // 23
-	};
-	
-	_idx = new GLuint[_idxCount]{ 
-		// Front face
-		0, 1, 2, 2, 3, 0,
-		// Back face
-		4, 5, 6, 6, 7, 4,
-		// Left face
-		8, 9, 10, 10, 11, 8,
-		// Right face
-		12, 13, 14, 14, 15, 12,
-		// Top face
-		16, 17, 18, 18, 19, 16,
-		// Bottom face
-		20, 21, 22, 22, 23, 20
-	};
-
+	setPoints();
 }
 
 CBox::~CBox()
@@ -100,5 +48,81 @@ void CBox::update(float dt)
 void CBox::reset() {
 	CShape::reset();
 	// 如有需要，可加入其他特定於四邊形的重設動作
+}
+
+void CBox::setPoints(bool front, bool back, bool left, bool right) {
+    std::vector<GLfloat> points;
+    std::vector<GLuint> indices;
+    GLuint baseIdx = 0;
+
+    auto addFace = [&](std::initializer_list<GLfloat> faceVerts, std::initializer_list<GLuint> faceIdx) {
+        points.insert(points.end(), faceVerts.begin(), faceVerts.end());
+        for (GLuint i : faceIdx)
+            indices.push_back(baseIdx + i);
+        baseIdx += 4;
+    };
+
+    if (front) {
+        addFace({
+            // z = +0.5, normal = (0, 0, 1)
+            -0.5f, -0.5f,  0.5f,  1.0f, 0.6f, 0.6f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,
+             0.5f, -0.5f,  0.5f,  1.0f, 0.6f, 0.6f,   0.0f, 0.0f, 1.0f,   1.0f, 0.0f,
+             0.5f,  0.5f,  0.5f,  1.0f, 0.6f, 0.6f,   0.0f, 0.0f, 1.0f,   1.0f, 1.0f,
+            -0.5f,  0.5f,  0.5f,  1.0f, 0.6f, 0.6f,   0.0f, 0.0f, 1.0f,   0.0f, 1.0f
+            }, { 0, 1, 2, 2, 3, 0 });
+    }
+    if (back) {
+        addFace({
+             0.5f, -0.5f, -0.5f,  0.6f, 1.0f, 0.6f,   0.0f, 0.0f, -1.0f,   1.0f, 0.0f,
+            -0.5f, -0.5f, -0.5f,  0.6f, 1.0f, 0.6f,   0.0f, 0.0f, -1.0f,   0.0f, 0.0f,
+            -0.5f,  0.5f, -0.5f,  0.6f, 1.0f, 0.6f,   0.0f, 0.0f, -1.0f,   0.0f, 1.0f,
+             0.5f,  0.5f, -0.5f,  0.6f, 1.0f, 0.6f,   0.0f, 0.0f, -1.0f,   1.0f, 1.0f
+            }, { 0, 1, 2, 2, 3, 0 });
+    }
+    if (left) {
+        addFace({
+            -0.5f, -0.5f, -0.5f,  0.6f, 0.6f, 1.0f,   -1.0f, 0.0f, 0.0f,   0.0f, 0.0f,
+            -0.5f, -0.5f,  0.5f,  0.6f, 0.6f, 1.0f,   -1.0f, 0.0f, 0.0f,   1.0f, 0.0f,
+            -0.5f,  0.5f,  0.5f,  0.6f, 0.6f, 1.0f,   -1.0f, 0.0f, 0.0f,   1.0f, 1.0f,
+            -0.5f,  0.5f, -0.5f,  0.6f, 0.6f, 1.0f,   -1.0f, 0.0f, 0.0f,   0.0f, 1.0f
+            }, { 0, 1, 2, 2, 3, 0 });
+    }
+    if (right) {
+        addFace({
+             0.5f, -0.5f,  0.5f,  1.0f, 1.0f, 0.6f,    1.0f, 0.0f, 0.0f,   0.0f, 0.0f,
+             0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 0.6f,    1.0f, 0.0f, 0.0f,   1.0f, 0.0f,
+             0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 0.6f,    1.0f, 0.0f, 0.0f,   1.0f, 1.0f,
+             0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 0.6f,    1.0f, 0.0f, 0.0f,   0.0f, 1.0f
+            }, { 0, 1, 2, 2, 3, 0 });
+    }
+    // top 和 bottom 一律都畫
+	addFace({
+			-0.5f,  0.5f,  0.5f,  1.0f, 0.6f, 1.0f,   0.0f, 1.0f, 0.0f,   0.0f, 0.0f,
+			 0.5f,  0.5f,  0.5f,  1.0f, 0.6f, 1.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,
+			 0.5f,  0.5f, -0.5f,  1.0f, 0.6f, 1.0f,   0.0f, 1.0f, 0.0f,   1.0f, 1.0f,
+			-0.5f,  0.5f, -0.5f,  1.0f, 0.6f, 1.0f,   0.0f, 1.0f, 0.0f,   0.0f, 1.0f
+			}, { 0, 1, 2, 2, 3, 0 });
+	addFace({
+			-0.5f, -0.5f, -0.5f,  0.6f, 1.0f, 1.0f,   0.0f, -1.0f, 0.0f,   0.0f, 0.0f,
+			 0.5f, -0.5f, -0.5f,  0.6f, 1.0f, 1.0f,   0.0f, -1.0f, 0.0f,   1.0f, 0.0f,
+			 0.5f, -0.5f,  0.5f,  0.6f, 1.0f, 1.0f,   0.0f, -1.0f, 0.0f,   1.0f, 1.0f,
+			-0.5f, -0.5f,  0.5f,  0.6f, 1.0f, 1.0f,   0.0f, -1.0f, 0.0f,   0.0f, 1.0f
+			}, { 0, 1, 2, 2, 3, 0 });
+
+    // 配置給對應的成員變數
+    _vtxCount = baseIdx;
+    _vtxAttrCount = 11;
+    _idxCount = static_cast<GLuint>(indices.size());
+
+    // 釋放舊資料
+    if(_points != nullptr) delete[] _points;
+	if (_idx != nullptr) delete[] _idx;
+
+    // 設定新資料
+    _points = new GLfloat[points.size()];
+    std::copy(points.begin(), points.end(), _points);
+
+    _idx = new GLuint[indices.size()];
+    std::copy(indices.begin(), indices.end(), _idx);
 }
 
