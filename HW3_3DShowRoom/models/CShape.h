@@ -43,7 +43,7 @@ public:
 	// 控制與改變貼圖座標
 	void setMirror(bool uAxis, bool vAxis); // U軸 與 V軸 是否要鏡射
 	void setTiling(float uTiling, float vTiling);  // 對 U軸 與 V軸重複拼貼的次數
-	void setLightMapTiling(float uTiling, float vTiling);  // 對 LightMap U軸 與 V軸 進行重複拼貼的次數
+	void setLightMapTiling(float uTiling, float vTiling);  // 對 LightMap U 軸與 V 軸 進行重複拼貼的次數
 
 	// 設定 Texture Flags 參數
 	void setTextureMode(int flags);

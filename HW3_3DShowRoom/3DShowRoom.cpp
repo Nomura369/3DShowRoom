@@ -96,7 +96,7 @@ CMaterial g_matWoodBleached;
 CMaterial g_matGlass;
 
 // 貼圖宣告區
-TextureData g_texData[5]; 
+TextureData g_texData[6]; 
 
 // 2D 素材宣告區
 //std::array<CButton, 4> g_button = {
@@ -153,6 +153,7 @@ void loadScene(void)
     g_texData[2] = CTexturePool::getInstance().getTexture("texture/wood.png"); // 不開啟 mipmap
     g_texData[3] = CTexturePool::getInstance().getTexture("texture/bread.png"); // 不開啟 mipmap
     g_texData[4] = CTexturePool::getInstance().getTexture("texture/wall_alpha.png", true); // 開啟 mipmap
+    g_texData[5] = CTexturePool::getInstance().getTexture("texture/lightMap.png"); // lightmap
 
     // 設定模型
     for (int i = 0; i < 2; i++) {
@@ -260,7 +261,7 @@ void loadScene(void)
         g_floor[floor].setScale(glm::vec3(30.0f, 30.0f, 1.0f));
         g_floor[floor].setRotate(-90, glm::vec3(1, 0, 0)); // 攤平並翻正
         g_floor[floor].setMaterial(g_matWoodBleached);
-        g_floor[floor].setTextureMode(CShape::TEX_DIFFUSE);
+        g_floor[floor].setTextureMode(CShape::TEX_DIFFUSE | CShape::TEX_LIGHTMAP);
         g_floor[floor].setTiling(90, 90);
 
         glm::vec3 offset = offsetX * (float)(floor % 2) + offsetZ * (float)(floor / 2);
@@ -383,7 +384,7 @@ void render(void)
     }
     //g_flashlight.drawRaw(); // 不用特別畫立方體出來
     
-    glActiveTexture(GL_TEXTURE0);
+    glActiveTexture(GL_TEXTURE0); // 啟動一般貼圖
     glBindTexture(GL_TEXTURE_2D, 0); // 不綁定貼圖
     for (int i = 0; i < ROOM_NUM; i++) {
         g_room[i].uploadMaterial();
@@ -391,13 +392,16 @@ void render(void)
         g_room[i].drawRaw();
     }
 
-    glBindTexture(GL_TEXTURE_2D, g_texData[1].id); // 綁定貼圖 
+    glBindTexture(GL_TEXTURE_2D, g_texData[1].id); // 綁定一般貼圖
+    glActiveTexture(GL_TEXTURE1); // 啟動 lightmap
+    glBindTexture(GL_TEXTURE_2D, g_texData[3].id); // 綁定 lightmap
     for (int i = 0; i < ROOM_NUM; i++) {
         g_floor[i].uploadMaterial();
         g_floor[i].uploadTextureFlags();
         g_floor[i].drawRaw();
     }
     
+    glActiveTexture(GL_TEXTURE0); // 啟動一般貼圖
     glBindTexture(GL_TEXTURE_2D, g_texData[0].id); // 綁定貼圖 
     for (int i = 0; i < ROOM_NUM * 4; i++) {
         if (g_walls[i].getMaterial() == g_matWoodBleached) {
@@ -565,7 +569,7 @@ int main() {
     loadScene();
 
     std::cout << "1. wasd/WASD 移動" << std::endl;
-    std::cout << "   玻璃牆面是可以穿透的" << std::endl;
+    std::cout << "   可穿透玻璃牆面" << std::endl;
     std::cout << "2. space 使用道具（開關手電筒或發射子彈）" << std::endl << std::endl;
     /*std::cout << "n/N 切換照明模式" << std::endl;
     std::cout << "rgb/RGB 改變點光源色調" << std::endl;
