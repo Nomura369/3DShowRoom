@@ -32,10 +32,7 @@ extern CLight g_flashlight;
 extern CMaterial g_matWaterGreen;
 extern CSphere  g_sphere; 
 
-//extern std::array<CButton, 4> g_button;
-extern bool g_isNpr;
-extern bool g_isGradient;
-extern float g_colorTime;
+extern bool g_itemChange;
 
 Arcball g_arcball; //保留未用
 
@@ -74,10 +71,10 @@ void moveForward(bool isForward) {
     glm::vec3 eyeloc = g_eyeloc + front * speed * direction;
     glm::vec3 centerloc = centerPos + front * speed * direction;
 
-    /*if (allRooms.isInsideRoom(eyeloc) && allRooms.isInsideRoom(centerloc)) {*/
+    if (allRooms.isInsideRoom(eyeloc) && allRooms.isInsideRoom(centerloc)) {
         g_eyeloc = eyeloc;
         g_centerloc.setPos(centerloc);
-    /*}*/
+    }
 
     // 更新攝影機與 view matrix
     CCamera::getInstance().updateViewCenter(g_eyeloc, g_centerloc.getPos());
@@ -99,10 +96,10 @@ void moveRight(bool isRight) {
     glm::vec3 eyeloc = g_eyeloc + right * speed * direction;
     glm::vec3 centerloc = centerPos + right * speed * direction;
 
-    /*if (allRooms.isInsideRoom(eyeloc) && allRooms.isInsideRoom(centerloc)) {*/
+    if (allRooms.isInsideRoom(eyeloc) && allRooms.isInsideRoom(centerloc)) {
         g_eyeloc = eyeloc;
         g_centerloc.setPos(centerloc);
-    /*}*/
+    }
 
     // 更新攝影機與 view matrix
     CCamera::getInstance().updateViewCenter(g_eyeloc, g_centerloc.getPos());
@@ -213,7 +210,11 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
         break;
     case GLFW_KEY_SPACE: // 按下空白鍵使用道具
         if (action == GLFW_PRESS) {
-            g_flashlight.setLightOn(!g_flashlight.isLightOn());
+            if (!g_itemChange) {
+                g_flashlight.setLightOn(!g_flashlight.isLightOn());
+            }else{
+                // 使用手槍
+            }
         }
         break;
     default: // 針對英文字母大小寫進行處理
@@ -246,17 +247,17 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
                     CCamera::getInstance().setIsWalking(true);
                     moveRight(true);
                     break;
-                //case 'N':
-                //case 'n':
-                //    // 切換照明風格（是否為卡通）
-                //    g_isNpr = !g_isNpr;
-                //    if (g_isNpr) {
-                //        std::cout << "目前為 NPR 模式" << std::endl << std::endl;
-                //    }
-                //    else {
-                //        std::cout << "目前為 Per-Pixel Lighting 模式" << std::endl << std::endl;
-                //    }
-                //    break;
+                case 'C':
+                case 'c':
+                    g_itemChange = !g_itemChange; // 切換手中道具
+                    if (!g_itemChange) {
+                        std::cout << "你現在拿的是「手電筒」" << std::endl << std::endl;
+                    }
+                    else {
+                        std::cout << "你現在拿的是「手槍」" << std::endl << std::endl;
+                        g_flashlight.setLightOn(false); // 強制收起手電筒
+                    }
+                    break;
                 }
             }
         }

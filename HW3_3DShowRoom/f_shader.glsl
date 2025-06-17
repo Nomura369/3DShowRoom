@@ -133,12 +133,12 @@ void main() {
         vec3 lightMapColor = vec3(0.7, 0.85, 0.9);
 
         float patternFade = smoothstep(0.0, 0.3, spotlightIntensity);
-        resultRGB += lightMapColor * 0.8 * lightTex * colorRGB * patternFade;
+        resultRGB += lightMapColor * 1.5 * lightTex * colorRGB * patternFade;
     }
 
     // 環境貼圖
     if ((uTextureFlags & 8) != 0) {
-        float envIntensity = 0.5;
+        float envIntensity = 0.3;
         vec3 reflectVec = reflect(-V, N);
         
         reflectVec.y += 0.25; // 調整反射向量的位置

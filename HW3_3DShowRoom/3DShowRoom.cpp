@@ -78,12 +78,10 @@ std::array<CLight, ROOM_NUM> g_lights = {
     CLight (glm::vec3(0.0f, 10.0f, -30.1f)),
     CLight (glm::vec3(-30.1f, 10.0f, -30.1f)),
     CLight (glm::vec3(0.0f, 10.0f, -60.2f)),
-    CLight(glm::vec3(-30.1f, 10.0f, -60.2f)),
+    CLight (glm::vec3(-30.1f, 10.0f, -60.2f)),
 };
 // 手電筒，聚光燈形式（從略低於相機的位置出發，往視線前方照）
 CLight g_flashlight(glm::vec3(6.0f, 5.0f, 6.0f), glm::vec3(0.0f, 4.0f, 0.0f)); 
-
-//bool g_bOnBtnActive[4] = { false, false, false, false }; // 判斷按鈕們是否被按下
 
 // 全域材質（可依模型分別設定）
 CMaterial g_matBeige;   // 淺米白
@@ -100,14 +98,6 @@ CMaterial g_matGlass;
 TextureData g_texData[7]; 
 GLuint g_uiCubeMap; // 環境貼圖專用
 
-// 2D 素材宣告區
-//std::array<CButton, 4> g_button = {
-//    CButton(50.0f, 50.0f, glm::vec4(1.0f, 0.85f, 0.2f, 1.0f), glm::vec4(0.7f, 0.5f, 0.0f, 1.0f)), // 點光源 yellow
-//    CButton(50.0f, 50.0f, glm::vec4(1.0f, 0.7f, 0.85f, 1.0f), glm::vec4(0.65f, 0.35f, 0.5f, 1.0f)), // 藥丸聚光燈 pink
-//    CButton(50.0f, 50.0f, glm::vec4(0.65f, 0.9f, 1.0f, 1.0f), glm::vec4(0.3f, 0.55f, 0.7f, 1.0f)), // 杯子聚光燈 blue
-//    CButton(50.0f, 50.0f, glm::vec4(0.65f, 1.0f, 0.75f, 1.0f), glm::vec4(0.3f, 0.65f, 0.45f, 1.0f)), // 紐結聚光燈 green
-//};
-
 // 投影矩陣
 GLint g_viewLoc;
 GLint g_projLoc;
@@ -118,9 +108,8 @@ GLint g_uiProjLoc;
 glm::mat4 g_mxUiView;
 glm::mat4 g_mxUiProj;
 
-bool g_isNpr = false; // 切換照明風格（是否為卡通）
-bool g_isGradient = false; // 是否自動漸變照明色調
-float g_colorTime = 0.0f; // 計算自動變色的時間
+// 狀態宣告區
+bool g_itemChange = false; // 0 為手電筒（預設），1 為手槍
 
 void genMaterial();
 
@@ -145,6 +134,7 @@ void loadScene(void)
     g_flashlight.setShaderID(g_shadingProg, "uLight[6]");
     g_flashlight.setCutOffDeg(20.0f, 35.0f, 20.0f); // 第三引數為聚焦指數（optional）
     g_flashlight.setIntensity(0.5f);
+    g_flashlight.setLightOn(false); // 預設手電筒是關的
 
     glUniform1i(glGetUniformLocation(g_shadingProg, "uLightNum"), ROOM_NUM + 1);
     glUniform1i(glGetUniformLocation(g_shadingProg, "uIsNpr"), 0); // 切換照明風格（是否為卡通）
@@ -340,23 +330,14 @@ void loadScene(void)
     glUniformMatrix4fv(g_projLoc, 1, GL_FALSE, glm::value_ptr(g_mxProj));
 
     // UI 設定
-    /*g_button[0].setScreenPos(525.0f, 50.0f);
-    g_button[0].init(g_uiShadingProg);
-    g_button[1].setScreenPos(600.0f, 50.0f);
-    g_button[1].init(g_uiShadingProg);
-    g_button[2].setScreenPos(675.0f, 50.0f);
-    g_button[2].init(g_uiShadingProg);
-    g_button[3].setScreenPos(750.0f, 50.0f);
-    g_button[3].init(g_uiShadingProg);*/
-    
-    g_mxUiView = glm::mat4(1.0f);
-    g_mxUiProj = glm::ortho(0.0f, (float)SCREEN_WIDTH, 0.0f, (float)SCREEN_HEIGHT, -1.0f, 1.0f);
+    //g_mxUiView = glm::mat4(1.0f);
+    //g_mxUiProj = glm::ortho(0.0f, (float)SCREEN_WIDTH, 0.0f, (float)SCREEN_HEIGHT, -1.0f, 1.0f);
 
-    g_uiViewLoc = glGetUniformLocation(g_uiShadingProg, "mxView"); 	// 取得 view matrix 變數的位置 v
-    glUniformMatrix4fv(g_uiViewLoc, 1, GL_FALSE, glm::value_ptr(g_mxUiView));
+    //g_uiViewLoc = glGetUniformLocation(g_uiShadingProg, "mxView"); 	// 取得 view matrix 變數的位置 v
+    //glUniformMatrix4fv(g_uiViewLoc, 1, GL_FALSE, glm::value_ptr(g_mxUiView));
 
-    g_uiProjLoc = glGetUniformLocation(g_uiShadingProg, "mxProj"); 	// 取得投影矩陣變數的位置 v
-    glUniformMatrix4fv(g_uiProjLoc, 1, GL_FALSE, glm::value_ptr(g_mxUiProj));
+    //g_uiProjLoc = glGetUniformLocation(g_uiShadingProg, "mxProj"); 	// 取得投影矩陣變數的位置 v
+    //glUniformMatrix4fv(g_uiProjLoc, 1, GL_FALSE, glm::value_ptr(g_mxUiProj));
   
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // 設定清除 back buffer 背景的顏色
     glEnable(GL_DEPTH_TEST); // 啟動深度測試
@@ -377,7 +358,6 @@ void render(void)
     glUniform3fv(glGetUniformLocation(g_shadingProg, "viewPos"), 1, glm::value_ptr(g_eyeloc));
     glUniform3fv(glGetUniformLocation(g_shadingProg, "lightPos"), 1, glm::value_ptr(g_lights[0].getPos())); // 選一個光源當代表就好
 
-    // 先切換回 3d 投影畫模型，再切換到 2d 投影畫 UI
     g_mxView = CCamera::getInstance().getViewMatrix();
     g_mxProj = CCamera::getInstance().getProjectionMatrix();
     glUniformMatrix4fv(g_viewLoc, 1, GL_FALSE, glm::value_ptr(g_mxView));
@@ -475,14 +455,6 @@ void render(void)
     // 結束半透明物體的繪製
     glDisable(GL_BLEND);// 關閉 Blending
     glDepthMask(GL_TRUE);// 開啟對 Z-Buffer 的寫入操作
-
-    /*glUseProgram(g_uiShadingProg);
-    glUniformMatrix4fv(g_uiViewLoc, 1, GL_FALSE, glm::value_ptr(g_mxUiView));
-    glUniformMatrix4fv(g_uiProjLoc, 1, GL_FALSE, glm::value_ptr(g_mxUiProj));
-
-    for (int i = 0; i < 4; i++) {
-        g_button[i].draw();
-    }*/
 }
 //----------------------------------------------------------------------------
 
@@ -544,7 +516,7 @@ int main() {
     //glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3); // OpenGL 3.3
     //glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     //glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); //只啟用 OpenGL 3.3 Core Profile（不包含舊版 OpenGL 功能）
-    //glfwWindowHint(GLFW_RESIZABLE, GL_FALSE); // 禁止視窗大小改變
+    glfwWindowHint(GLFW_RESIZABLE, GL_FALSE); // 禁止視窗大小改變
 
     // 建立 OpenGL 視窗與該視窗執行時所需的的狀態、資源和環境(context 上下文)
     GLFWwindow* window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "3D Show Room", nullptr, nullptr);
@@ -576,13 +548,10 @@ int main() {
     // 呼叫 loadScene() 建立與載入 GPU 進行描繪的幾何資料 
     loadScene();
 
-    std::cout << "1. wasd/WASD 移動" << std::endl;
-    std::cout << "   可穿透玻璃牆面" << std::endl;
-    std::cout << "2. space 使用道具（開關手電筒或發射子彈）" << std::endl << std::endl;
-    /*std::cout << "n/N 切換照明模式" << std::endl;
-    std::cout << "rgb/RGB 改變點光源色調" << std::endl;
-    std::cout << "h/H 重設點光源色調" << std::endl;
-    std::cout << "l/L 自動漸變點光源色調" << std::endl << std::endl;*/
+    std::cout << "1. wasd/WASD 移動，透明牆面可穿透" << std::endl;
+    std::cout << "2. c/C 切換道具（手電筒或手槍）" << std::endl;
+    std::cout << "3. space 使用道具（開關手電筒或發射子彈）" << std::endl << std::endl;
+    std::cout << "你現在拿的是「手電筒」" << std::endl << std::endl; // 預設道具
     
     float lastTime = (float)glfwGetTime();
     while (!glfwWindowShouldClose(window)) {
