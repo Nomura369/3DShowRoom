@@ -138,10 +138,14 @@ void main() {
 
     // 環境貼圖
     if ((uTextureFlags & 8) != 0) {
-        float envIntensity = 0.4;
+        float envIntensity = 0.5;
         vec3 reflectVec = reflect(-V, N);
+        
+        reflectVec.y += 0.25; // 調整反射向量的位置
+        reflectVec = normalize(reflectVec);
         reflectVec.y = -reflectVec.y;
         vec3 envColor = texture(uEnvMap, reflectVec).rgb;
+       
         resultRGB = mix(resultRGB, envColor, envIntensity);
     }
 

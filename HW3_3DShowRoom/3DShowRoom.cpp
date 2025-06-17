@@ -34,6 +34,7 @@
 #include "common/CLight.h"
 #include "common/CMaterial.h"
 #include "../models/CObjModel.h"
+#include "common/png_loader.h"
 #include "common/CButton.h"
 
 #define SCREEN_WIDTH  800
@@ -97,6 +98,7 @@ CMaterial g_matGlass;
 
 // 貼圖宣告區
 TextureData g_texData[7]; 
+GLuint g_uiCubeMap; // 環境貼圖專用
 
 // 2D 素材宣告區
 //std::array<CButton, 4> g_button = {
@@ -155,6 +157,7 @@ void loadScene(void)
     g_texData[4] = CTexturePool::getInstance().getTexture("texture/wall_alpha.png", true); // 開啟 mipmap
     g_texData[5] = CTexturePool::getInstance().getTexture("texture/lightMap.png"); // lightmap
     g_texData[6] = CTexturePool::getInstance().getTexture("texture/normalMap.png", true); // normalmap
+    g_uiCubeMap = CubeMap_load_SOIL();
 
     // 設定模型
     for (int i = 0; i < 2; i++) {
@@ -175,11 +178,11 @@ void loadScene(void)
         g_cup[i].setShaderID(g_shadingProg, 3);
         g_cup[i].setScale(glm::vec3(1.5f, 1.5f, 1.5f));
         g_cup[i].setMaterial(g_matWaterBlue);
-        g_cup[i].setTextureMode(CShape::TEX_NONE);
+        g_cup[i].setTextureMode(CShape::TEX_CUBEMAP);
     }
-    g_cup[0].setPos(glm::vec3(3.0f, 0.5f, -30.1f));
-    g_cup[1].setPos(glm::vec3(-1.5f, 0.5f, -30.1f + 2.598f));
-    g_cup[2].setPos(glm::vec3(-1.5f, 0.5f, -30.1f - 2.598f));
+    g_cup[0].setPos(glm::vec3(3.0f, 0.1f, -30.1f));
+    g_cup[1].setPos(glm::vec3(-1.5f, 0.1f, -30.1f + 2.598f));
+    g_cup[2].setPos(glm::vec3(-1.5f, 0.1f, -30.1f - 2.598f));
 
     g_objModel.setupVertexAttributes();
     g_objModel.setShaderID(g_shadingProg, 3);
@@ -207,11 +210,11 @@ void loadScene(void)
         g_donut[i].setMaterial(g_matWoodHoney);
         g_donut[i].setTextureMode(CShape::TEX_DIFFUSE);
     }
-    g_donut[0].setPos(glm::vec3(4.0f, 0.5f, -60.2f));
-    g_donut[1].setPos(glm::vec3(1.24f, 0.5f, -56.41f));
-    g_donut[2].setPos(glm::vec3(-3.24f, 0.5f, -58.27f));
-    g_donut[3].setPos(glm::vec3(-3.24f, 0.5f, -62.13f));
-    g_donut[4].setPos(glm::vec3(1.24f, 0.5f, -63.99f));
+    g_donut[0].setPos(glm::vec3(4.0f, 0.3f, -60.2f));
+    g_donut[1].setPos(glm::vec3(1.24f, 0.3f, -56.41f));
+    g_donut[2].setPos(glm::vec3(-3.24f, 0.3f, -58.27f));
+    g_donut[3].setPos(glm::vec3(-3.24f, 0.3f, -62.13f));
+    g_donut[4].setPos(glm::vec3(1.24f, 0.3f, -63.99f));
 
     for (int i = 0; i < 6; i++) {
         g_teapot[i].setupVertexAttributes();
@@ -223,12 +226,12 @@ void loadScene(void)
             g_teapot[i].setRotate(180, glm::vec3(0, 1, 0));
         }
     } 
-    g_teapot[0].setPos(glm::vec3(-26.1f, 0.5f, -60.2f));   
-    g_teapot[1].setPos(glm::vec3(-28.1f, 0.5f, -57.736f)); 
-    g_teapot[2].setPos(glm::vec3(-32.1f, 0.5f, -57.736f)); 
-    g_teapot[3].setPos(glm::vec3(-34.1f, 0.5f, -60.2f));   
-    g_teapot[4].setPos(glm::vec3(-32.1f, 0.5f, -62.664f)); 
-    g_teapot[5].setPos(glm::vec3(-28.1f, 0.5f, -62.664f)); 
+    g_teapot[0].setPos(glm::vec3(-26.1f, 0.1f, -60.2f));   
+    g_teapot[1].setPos(glm::vec3(-28.1f, 0.1f, -57.736f)); 
+    g_teapot[2].setPos(glm::vec3(-32.1f, 0.1f, -57.736f)); 
+    g_teapot[3].setPos(glm::vec3(-34.1f, 0.1f, -60.2f));   
+    g_teapot[4].setPos(glm::vec3(-32.1f, 0.1f, -62.664f)); 
+    g_teapot[5].setPos(glm::vec3(-28.1f, 0.1f, -62.664f)); 
     
     // 設定場景
     glm::vec3 roomPos(0.0f, 5.95f, 0.0f);
@@ -424,13 +427,15 @@ void render(void)
         g_capsule[i].drawRaw();
     }
 
-    glBindTexture(GL_TEXTURE_2D, 0); // 不綁定貼圖
+    glActiveTexture(GL_TEXTURE3); // 啟用環境貼圖
+    glBindTexture(GL_TEXTURE_CUBE_MAP, g_uiCubeMap); // 綁定貼圖
     for (int i = 0; i < 3; i++) {
         g_cup[i].uploadMaterial();
         g_cup[i].uploadTextureFlags();
         g_cup[i].drawRaw();
     }
 
+    glActiveTexture(GL_TEXTURE0); // 啟動一般貼圖
     glBindTexture(GL_TEXTURE_2D, 0); // 不綁定貼圖
     for (int i = 0; i < 4; i++) {
         g_knot[i].uploadMaterial();
