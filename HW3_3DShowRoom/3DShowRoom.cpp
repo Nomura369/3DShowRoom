@@ -96,7 +96,7 @@ CMaterial g_matWoodBleached;
 CMaterial g_matGlass;
 
 // 貼圖宣告區
-TextureData g_texData[6]; 
+TextureData g_texData[7]; 
 
 // 2D 素材宣告區
 //std::array<CButton, 4> g_button = {
@@ -154,6 +154,7 @@ void loadScene(void)
     g_texData[3] = CTexturePool::getInstance().getTexture("texture/bread.png"); // 不開啟 mipmap
     g_texData[4] = CTexturePool::getInstance().getTexture("texture/wall_alpha.png", true); // 開啟 mipmap
     g_texData[5] = CTexturePool::getInstance().getTexture("texture/lightMap.png"); // lightmap
+    g_texData[6] = CTexturePool::getInstance().getTexture("texture/normalMap.png", true); // normalmap
 
     // 設定模型
     for (int i = 0; i < 2; i++) {
@@ -217,7 +218,7 @@ void loadScene(void)
         g_teapot[i].setShaderID(g_shadingProg, 3);
         g_teapot[i].setScale(glm::vec3(0.65f, 0.65f, 0.65f));
         g_teapot[i].setMaterial(g_matGray);
-        g_teapot[i].setTextureMode(CShape::TEX_NONE);
+        g_teapot[i].setTextureMode(CShape::TEX_NORMALMAP);
         if (i >= 2 && i <= 4) {
             g_teapot[i].setRotate(180, glm::vec3(0, 1, 0));
         }
@@ -444,7 +445,8 @@ void render(void)
         g_donut[i].drawRaw();
     }
 
-    glBindTexture(GL_TEXTURE_2D, 0); // 不綁定貼圖
+    glActiveTexture(GL_TEXTURE2); // 啟動 normalmap
+    glBindTexture(GL_TEXTURE_2D, g_texData[6].id); // 綁定貼圖
     for (int i = 0; i < 6; i++) {
         g_teapot[i].uploadMaterial();
         g_teapot[i].uploadTextureFlags();
@@ -455,6 +457,7 @@ void render(void)
     glEnable(GL_BLEND);
     glDepthMask(GL_FALSE);
 
+    glActiveTexture(GL_TEXTURE0); // 啟動一般貼圖
     glBindTexture(GL_TEXTURE_2D, g_texData[4].id); // 綁定貼圖 
     for (int i = ROOM_NUM * 4 - 1; i >= 0; i--) { // 由遠到近
         if (g_walls[i].getMaterial() == g_matGlass) {
