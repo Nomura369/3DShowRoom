@@ -93,9 +93,10 @@ CMaterial g_matWaterRed;
 CMaterial g_matWoodHoney;
 CMaterial g_matWoodLightOak;
 CMaterial g_matWoodBleached;
+CMaterial g_matGlass;
 
 // 貼圖宣告區
-TextureData g_texData[4]; 
+TextureData g_texData[5]; 
 
 // 2D 素材宣告區
 //std::array<CButton, 4> g_button = {
@@ -141,7 +142,7 @@ void loadScene(void)
 
     g_flashlight.setShaderID(g_shadingProg, "uLight[6]");
     g_flashlight.setCutOffDeg(20.0f, 35.0f, 20.0f); // 第三引數為聚焦指數（optional）
-    g_flashlight.setIntensity(0.4f);
+    g_flashlight.setIntensity(0.5f);
 
     glUniform1i(glGetUniformLocation(g_shadingProg, "uLightNum"), ROOM_NUM + 1);
     glUniform1i(glGetUniformLocation(g_shadingProg, "uIsNpr"), 0); // 切換照明風格（是否為卡通）
@@ -150,7 +151,8 @@ void loadScene(void)
     g_texData[0] = CTexturePool::getInstance().getTexture("texture/wall.png", true); // 開啟 mipmap
     g_texData[1] = CTexturePool::getInstance().getTexture("texture/floor.png"); // 不開啟 mipmap
     g_texData[2] = CTexturePool::getInstance().getTexture("texture/wood.png"); // 不開啟 mipmap
-    g_texData[3] = CTexturePool::getInstance().getTexture("texture/bread.png"); // 開啟 mipmap
+    g_texData[3] = CTexturePool::getInstance().getTexture("texture/bread.png"); // 不開啟 mipmap
+    g_texData[4] = CTexturePool::getInstance().getTexture("texture/wall_alpha.png", true); // 開啟 mipmap
 
     // 設定模型
     for (int i = 0; i < 2; i++) {
@@ -231,9 +233,10 @@ void loadScene(void)
     glm::vec3 offsetX(-30.05f, 0.0f, 0.0f);
     glm::vec3 offsetZ(0.0f, 0.0f, -30.05f);
     for (int room = 0; room < ROOM_NUM; room++) {
-        int row = room % 3; // Z軸方向（前後）
+        int row = room / 2; // Z軸方向（前後）
         int col = room % 2; // X軸方向（左右）
 
+        // 因為是直接測試得出的結果，不確定實際的相對位置為何
         bool drawFront = (row == 0); // 最後排才畫 front
         bool drawBack = (row == 2); // 最前排才畫 back
         bool drawLeft = (col == 1); // 中間會少一面牆
@@ -251,7 +254,7 @@ void loadScene(void)
     }
 
     glm::vec3 floorPos(0.0f, 0.0f, 0.0f);
-    for (int floor = 0; floor < ROOM_NUM; ++floor) {
+    for (int floor = 0; floor < ROOM_NUM; floor++) {
         g_floor[floor].setupVertexAttributes();
         g_floor[floor].setShaderID(g_shadingProg, 3);
         g_floor[floor].setScale(glm::vec3(30.0f, 30.0f, 1.0f));
@@ -264,44 +267,58 @@ void loadScene(void)
         g_floor[floor].setPos(floorPos + offset);
     }
     
-    //for (int room = 0; room < ROOM_NUM; ++room) {
-    //    glm::vec3 offset = offsetX * (float)(room % 2) + offsetZ * (float)(room / 2);
+    for (int room = 0; room < ROOM_NUM; room++) {
+        int row = room / 2; // Z軸方向（前後）
+        int col = room % 2; // X軸方向（左右）
+        glm::vec3 offset = offsetX * (float)col + offsetZ * (float)row;
 
-    //    for (int side = 0; side < 4; ++side) {
-    //        int idx = room * 4 + side;
+        for (int side = 0; side < 4; ++side) {
+            int idx = room * 4 + side;
 
-    //        g_walls[idx].setupVertexAttributes();
-    //        g_walls[idx].setShaderID(g_shadingProg, 3);
-    //        g_walls[idx].setScale(glm::vec3(30.0f, 12.0f, 30.0f));
-    //        g_walls[idx].setMaterial(g_matWoodBleached);
-    //        g_walls[idx].setTextureMode(CShape::TEX_DIFFUSE);
+            g_walls[idx].setupVertexAttributes();
+            g_walls[idx].setShaderID(g_shadingProg, 3);
+            g_walls[idx].setScale(glm::vec3(30.0f, 12.0f, 30.0f));
+            g_walls[idx].setMaterial(g_matWoodBleached);
 
-    //        glm::vec3 wallPos;
-    //        float rotationY = 0.0f;
+            glm::vec3 wallPos;
+            float rotationY = 0.0f;
 
-    //        switch (side) {
-    //        case 0: // 右牆
-    //            wallPos = glm::vec3(0.0f, 0.0f, 14.95f);
-    //            rotationY = 0.0f + 180.0f;
-    //            break;
-    //        case 1: // 後牆
-    //            wallPos = glm::vec3(14.95f, 0.0f, 0.0f);
-    //            rotationY = 90.0f + 180.0f;
-    //            break;
-    //        case 2: // 左牆
-    //            wallPos = glm::vec3(0.0f, 0.0f, -14.95f);
-    //            rotationY = 180.0f - 180.0f;
-    //            break;
-    //        case 3: // 前牆
-    //            wallPos = glm::vec3(-14.95f, 0.0f, 0.0f);
-    //            rotationY = 270.0f - 180.0f;
-    //            break;
-    //        }
+            switch (side) {
+              case 0: // 前牆（從椅子正面來看）
+                  wallPos = glm::vec3(0.0f, 0.0f, 14.95f);
+                  rotationY = 180.0f;
+                  if (row != 0) { // 互通牆
+                      g_walls[idx].setMaterial(g_matGlass);
+                  }
+                  break;
+              case 1: // 右牆
+                  wallPos = glm::vec3(14.95f, 0.0f, 0.0f);
+                  rotationY = 270.0f;
+                  if (col == 1) { // 互通牆
+                      g_walls[idx].setMaterial(g_matGlass);
+                  }
+                  break;
+              case 2: // 後牆
+                  wallPos = glm::vec3(0.0f, 0.0f, -14.95f);
+                  rotationY = 0.0f;
+                  if (row != 2) { // 互通牆
+                      g_walls[idx].setMaterial(g_matGlass);
+                  }
+                  break;
+              case 3: // 左牆
+                  wallPos = glm::vec3(-14.95f, 0.0f, 0.0f);
+                  rotationY = 90.0f;
+                  if (col != 1) { // 互通牆
+                      g_walls[idx].setMaterial(g_matGlass);
+                  }
+                  break;
+            }
 
-    //        g_walls[idx].setPos(roomPos + offset + wallPos);
-    //        g_walls[idx].setRotate(rotationY, glm::vec3(0, 1, 0));
-    //    }
-    //}
+            g_walls[idx].setPos(roomPos + offset + wallPos);
+            g_walls[idx].setRotate(rotationY, glm::vec3(0, 1, 0));
+            g_walls[idx].setTextureMode(CShape::TEX_DIFFUSE);
+        }
+    }
     
     g_centerloc.setPos(glm::vec3(0.0f, 4.0f, 0.0f)); // 設定 center 位置
 
@@ -338,6 +355,7 @@ void loadScene(void)
   
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // 設定清除 back buffer 背景的顏色
     glEnable(GL_DEPTH_TEST); // 啟動深度測試
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // 透明度繪圖控制
 }
 //----------------------------------------------------------------------------
 
@@ -380,12 +398,14 @@ void render(void)
         g_floor[i].drawRaw();
     }
     
-    //glBindTexture(GL_TEXTURE_2D, g_texData[0].id); // 綁定貼圖 
-    //for (int i = 0; i < ROOM_NUM * 4; i++) {
-    //    g_walls[i].uploadMaterial();
-    //    g_walls[i].uploadTextureFlags();
-    //    g_walls[i].drawRaw();
-    //}
+    glBindTexture(GL_TEXTURE_2D, g_texData[0].id); // 綁定貼圖 
+    for (int i = 0; i < ROOM_NUM * 4; i++) {
+        if (g_walls[i].getMaterial() == g_matWoodBleached) {
+            g_walls[i].uploadMaterial();
+            g_walls[i].uploadTextureFlags();
+            g_walls[i].drawRaw();
+        }
+    }
 
     glBindTexture(GL_TEXTURE_2D, g_texData[2].id); // 綁定貼圖 
     g_objModel.uploadMaterial();
@@ -426,6 +446,23 @@ void render(void)
         g_teapot[i].uploadTextureFlags();
         g_teapot[i].drawRaw();
     }
+
+    // 開始畫半透明物體
+    glEnable(GL_BLEND);
+    glDepthMask(GL_FALSE);
+
+    glBindTexture(GL_TEXTURE_2D, g_texData[4].id); // 綁定貼圖 
+    for (int i = ROOM_NUM * 4 - 1; i >= 0; i--) { // 由遠到近
+        if (g_walls[i].getMaterial() == g_matGlass) {
+            g_walls[i].uploadMaterial();
+            g_walls[i].uploadTextureFlags();
+            g_walls[i].drawRaw();
+        }
+    }
+
+    // 結束半透明物體的繪製
+    glDisable(GL_BLEND);// 關閉 Blending
+    glDepthMask(GL_TRUE);// 開啟對 Z-Buffer 的寫入操作
 
     /*glUseProgram(g_uiShadingProg);
     glUniformMatrix4fv(g_uiViewLoc, 1, GL_FALSE, glm::value_ptr(g_mxUiView));
@@ -528,8 +565,7 @@ int main() {
     loadScene();
 
     std::cout << "1. wasd/WASD 移動" << std::endl;
-    std::cout << "   可以穿透相對暗的牆面" << std::endl;
-    std::cout << "   而相對亮的無法通過" << std::endl;
+    std::cout << "   玻璃牆面是可以穿透的" << std::endl;
     std::cout << "2. space 使用道具（開關手電筒或發射子彈）" << std::endl << std::endl;
     /*std::cout << "n/N 切換照明模式" << std::endl;
     std::cout << "rgb/RGB 改變點光源色調" << std::endl;
@@ -593,4 +629,9 @@ void genMaterial()
     g_matWoodBleached.setDiffuse(glm::vec4(0.880f, 0.860f, 0.820f, 1.0f));
     g_matWoodBleached.setSpecular(glm::vec4(0.30f, 0.30f, 0.30f, 1.0f));
     g_matWoodBleached.setShininess(24.0f);
+
+    g_matGlass.setAmbient(glm::vec4(0.2f, 0.2f, 0.25f, 0.5f)); 
+    g_matGlass.setDiffuse(glm::vec4(0.05f, 0.05f, 0.05f, 0.5f));
+    g_matGlass.setSpecular(glm::vec4(0.9f, 0.9f, 0.95f, 0.5f));
+    g_matGlass.setShininess(60.0f);
 }

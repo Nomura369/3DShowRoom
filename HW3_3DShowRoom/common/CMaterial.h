@@ -20,6 +20,13 @@ public:
     // 將材質參數上傳到指定 shader program
     // uniformName: GLSL 中對應的 Material struct 名稱，例如 "material"
     void uploadToShader(GLuint shaderProg, std::string uniformName);
+
+    // 自訂 == 運算子 -> 若成員變數的值皆相同即代表兩個物件相等
+    bool operator==(const CMaterial& other) const {
+        return (_ambient == other._ambient && _diffuse == other._diffuse
+                && _specular == other._specular && _shininess == other._shininess);
+    }
+
 private:
     glm::vec4 _ambient;
     glm::vec4 _diffuse;

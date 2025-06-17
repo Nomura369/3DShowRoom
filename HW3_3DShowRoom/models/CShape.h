@@ -37,6 +37,7 @@ public:
 
 	// 材質管理
 	void setMaterial(const CMaterial& material);
+	const CMaterial& getMaterial();
 	void uploadMaterial();
 
 	// 控制與改變貼圖座標

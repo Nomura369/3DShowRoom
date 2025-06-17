@@ -267,6 +267,10 @@ void CShape::setMaterial(const CMaterial& material) {
 	_material = material;
 }
 
+const CMaterial& CShape::getMaterial() {
+	return _material;
+}
+
 void CShape::uploadMaterial()  {
 	_material.uploadToShader(_shaderProg, "uMaterial");
 }
