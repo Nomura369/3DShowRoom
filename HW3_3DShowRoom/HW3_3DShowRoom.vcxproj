@@ -145,7 +145,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="common\arcball.cpp" />
-    <ClCompile Include="common\CButton.cpp" />
+    <ClCompile Include="common\CAim.cpp" />
+    <ClCompile Include="common\CBulletManager.cpp" />
     <ClCompile Include="common\CCamera.cpp" />
     <ClCompile Include="common\CLight.cpp" />
     <ClCompile Include="common\CMaterial.cpp" />
@@ -156,12 +157,11 @@
     <ClCompile Include="common\initShader.cpp" />
     <ClCompile Include="common\png_loader.cpp" />
     <ClCompile Include="common\wmhandler.cpp" />
-    <ClCompile Include="models\CBottle.cpp" />
     <ClCompile Include="models\CBox.cpp" />
     <ClCompile Include="models\CCapsule.cpp" />
     <ClCompile Include="models\CCube.cpp" />
     <ClCompile Include="models\CCup.cpp" />
-    <ClCompile Include="models\CCylinder.cpp" />
+    <ClCompile Include="models\CBullet.cpp" />
     <ClCompile Include="models\CDonut.cpp" />
     <ClCompile Include="models\CObjModel.cpp" />
     <ClCompile Include="models\CQuad.cpp" />
@@ -173,7 +173,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common\arcball.h" />
-    <ClInclude Include="common\CButton.h" />
+    <ClInclude Include="common\CAim.h" />
+    <ClInclude Include="common\CBulletManager.h" />
     <ClInclude Include="common\CCamera.h" />
     <ClInclude Include="common\CLight.h" />
     <ClInclude Include="common\CMaterial.h" />
@@ -185,12 +186,11 @@
     <ClInclude Include="common\png_loader.h" />
     <ClInclude Include="common\typedefs.h" />
     <ClInclude Include="common\wmhandler.h" />
-    <ClInclude Include="models\CBottle.h" />
     <ClInclude Include="models\CBox.h" />
     <ClInclude Include="models\CCapsule.h" />
     <ClInclude Include="models\CCube.h" />
     <ClInclude Include="models\CCup.h" />
-    <ClInclude Include="models\CCylinder.h" />
+    <ClInclude Include="models\CBullet.h" />
     <ClInclude Include="models\CDonut.h" />
     <ClInclude Include="models\CObjModel.h" />
     <ClInclude Include="models\CQuad.h" />

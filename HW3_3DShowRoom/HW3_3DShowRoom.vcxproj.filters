@@ -30,9 +30,6 @@
     <ClCompile Include="common\arcball.cpp">
       <Filter>common</Filter>
     </ClCompile>
-    <ClCompile Include="common\CButton.cpp">
-      <Filter>common</Filter>
-    </ClCompile>
     <ClCompile Include="common\CCamera.cpp">
       <Filter>common</Filter>
     </ClCompile>
@@ -57,9 +54,6 @@
     <ClCompile Include="common\wmhandler.cpp">
       <Filter>common</Filter>
     </ClCompile>
-    <ClCompile Include="models\CBottle.cpp">
-      <Filter>models</Filter>
-    </ClCompile>
     <ClCompile Include="models\CBox.cpp">
       <Filter>models</Filter>
     </ClCompile>
@@ -72,7 +66,7 @@
     <ClCompile Include="models\CCup.cpp">
       <Filter>models</Filter>
     </ClCompile>
-    <ClCompile Include="models\CCylinder.cpp">
+    <ClCompile Include="models\CBullet.cpp">
       <Filter>models</Filter>
     </ClCompile>
     <ClCompile Include="models\CDonut.cpp">
@@ -105,12 +99,15 @@
     <ClCompile Include="models\CQuad.cpp">
       <Filter>models</Filter>
     </ClCompile>
+    <ClCompile Include="common\CBulletManager.cpp">
+      <Filter>common</Filter>
+    </ClCompile>
+    <ClCompile Include="common\CAim.cpp">
+      <Filter>common</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common\arcball.h">
-      <Filter>common</Filter>
-    </ClInclude>
-    <ClInclude Include="common\CButton.h">
       <Filter>common</Filter>
     </ClInclude>
     <ClInclude Include="common\CCamera.h">
@@ -140,9 +137,6 @@
     <ClInclude Include="common\wmhandler.h">
       <Filter>common</Filter>
     </ClInclude>
-    <ClInclude Include="models\CBottle.h">
-      <Filter>models</Filter>
-    </ClInclude>
     <ClInclude Include="models\CBox.h">
       <Filter>models</Filter>
     </ClInclude>
@@ -155,7 +149,7 @@
     <ClInclude Include="models\CCup.h">
       <Filter>models</Filter>
     </ClInclude>
-    <ClInclude Include="models\CCylinder.h">
+    <ClInclude Include="models\CBullet.h">
       <Filter>models</Filter>
     </ClInclude>
     <ClInclude Include="models\CDonut.h">
@@ -187,6 +181,12 @@
     </ClInclude>
     <ClInclude Include="models\CQuad.h">
       <Filter>models</Filter>
+    </ClInclude>
+    <ClInclude Include="common\CBulletManager.h">
+      <Filter>common</Filter>
+    </ClInclude>
+    <ClInclude Include="common\CAim.h">
+      <Filter>common</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

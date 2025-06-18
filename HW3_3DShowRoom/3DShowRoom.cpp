@@ -35,7 +35,8 @@
 #include "common/CMaterial.h"
 #include "../models/CObjModel.h"
 #include "common/png_loader.h"
-#include "common/CButton.h"
+#include "common/CBulletManager.h"
+#include "common/CAim.h"
 
 #define SCREEN_WIDTH  800
 #define SCREEN_HEIGHT 800
@@ -111,6 +112,9 @@ glm::mat4 g_mxUiProj;
 // 狀態宣告區
 bool g_itemChange = false; // 0 為手電筒（預設），1 為手槍
 
+// UI 素材宣告區
+CAim g_aim; // 手槍的準心標示（使用預設值繪製）
+
 void genMaterial();
 
 //----------------------------------------------------------------------------
@@ -128,7 +132,7 @@ void loadScene(void)
     g_lights[4].setShaderID(g_shadingProg, "uLight[4]");
     g_lights[5].setShaderID(g_shadingProg, "uLight[5]");
     for (int i = 0; i < ROOM_NUM; i++) {
-        g_lights[i].setIntensity(0.1f);
+        g_lights[i].setIntensity(0.15f);
     }
 
     g_flashlight.setShaderID(g_shadingProg, "uLight[6]");
@@ -222,6 +226,8 @@ void loadScene(void)
     g_teapot[3].setPos(glm::vec3(-34.1f, 0.1f, -60.2f));   
     g_teapot[4].setPos(glm::vec3(-32.1f, 0.1f, -62.664f)); 
     g_teapot[5].setPos(glm::vec3(-28.1f, 0.1f, -62.664f)); 
+
+    CBulletManager::getInstance().setShaderProg(g_shadingProg);
     
     // 設定場景
     glm::vec3 roomPos(0.0f, 5.95f, 0.0f);
@@ -330,14 +336,19 @@ void loadScene(void)
     glUniformMatrix4fv(g_projLoc, 1, GL_FALSE, glm::value_ptr(g_mxProj));
 
     // UI 設定
-    //g_mxUiView = glm::mat4(1.0f);
-    //g_mxUiProj = glm::ortho(0.0f, (float)SCREEN_WIDTH, 0.0f, (float)SCREEN_HEIGHT, -1.0f, 1.0f);
+    g_aim.setupVertexAttributes();
+    g_aim.setShaderID(g_uiShadingProg);
+    g_aim.setPos(glm::vec3(400.0f, 400.0f, 0.0f)); // 視窗中心
+    g_aim.setColor(glm::vec4(1.0f, 1.0f, 1.0f, 0.1f));
+    
+    g_mxUiView = glm::mat4(1.0f);
+    g_mxUiProj = glm::ortho(0.0f, (float)SCREEN_WIDTH, 0.0f, (float)SCREEN_HEIGHT, -1.0f, 1.0f);
 
-    //g_uiViewLoc = glGetUniformLocation(g_uiShadingProg, "mxView"); 	// 取得 view matrix 變數的位置 v
-    //glUniformMatrix4fv(g_uiViewLoc, 1, GL_FALSE, glm::value_ptr(g_mxUiView));
+    g_uiViewLoc = glGetUniformLocation(g_uiShadingProg, "mxView"); 	// 取得 view matrix 變數的位置 v
+    glUniformMatrix4fv(g_uiViewLoc, 1, GL_FALSE, glm::value_ptr(g_mxUiView));
 
-    //g_uiProjLoc = glGetUniformLocation(g_uiShadingProg, "mxProj"); 	// 取得投影矩陣變數的位置 v
-    //glUniformMatrix4fv(g_uiProjLoc, 1, GL_FALSE, glm::value_ptr(g_mxUiProj));
+    g_uiProjLoc = glGetUniformLocation(g_uiShadingProg, "mxProj"); 	// 取得投影矩陣變數的位置 v
+    glUniformMatrix4fv(g_uiProjLoc, 1, GL_FALSE, glm::value_ptr(g_mxUiProj));
   
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // 設定清除 back buffer 背景的顏色
     glEnable(GL_DEPTH_TEST); // 啟動深度測試
@@ -358,6 +369,7 @@ void render(void)
     glUniform3fv(glGetUniformLocation(g_shadingProg, "viewPos"), 1, glm::value_ptr(g_eyeloc));
     glUniform3fv(glGetUniformLocation(g_shadingProg, "lightPos"), 1, glm::value_ptr(g_lights[0].getPos())); // 選一個光源當代表就好
 
+    // 先切換回 3d 投影畫模型，再切換到 2d 投影畫 UI
     g_mxView = CCamera::getInstance().getViewMatrix();
     g_mxProj = CCamera::getInstance().getProjectionMatrix();
     glUniformMatrix4fv(g_viewLoc, 1, GL_FALSE, glm::value_ptr(g_mxView));
@@ -441,7 +453,6 @@ void render(void)
     // 開始畫半透明物體
     glEnable(GL_BLEND);
     glDepthMask(GL_FALSE);
-
     glActiveTexture(GL_TEXTURE0); // 啟動一般貼圖
     glBindTexture(GL_TEXTURE_2D, g_texData[4].id); // 綁定貼圖 
     for (int i = ROOM_NUM * 4 - 1; i >= 0; i--) { // 由遠到近
@@ -451,10 +462,25 @@ void render(void)
             g_walls[i].drawRaw();
         }
     }
-
     // 結束半透明物體的繪製
     glDisable(GL_BLEND);// 關閉 Blending
     glDepthMask(GL_TRUE);// 開啟對 Z-Buffer 的寫入操作
+
+    CBulletManager::getInstance().draw();
+
+    // 開始畫半透明物體
+    glEnable(GL_BLEND);
+    glDepthMask(GL_FALSE);
+    if (g_itemChange) { // 繪製手槍準心
+        glUseProgram(g_uiShadingProg);
+        glUniformMatrix4fv(g_uiViewLoc, 1, GL_FALSE, glm::value_ptr(g_mxUiView));
+        glUniformMatrix4fv(g_uiProjLoc, 1, GL_FALSE, glm::value_ptr(g_mxUiProj));
+        g_aim.draw();
+    }
+    // 結束半透明物體的繪製
+    glDisable(GL_BLEND);// 關閉 Blending
+    glDepthMask(GL_TRUE);// 開啟對 Z-Buffer 的寫入操作
+    
 }
 //----------------------------------------------------------------------------
 
@@ -498,6 +524,7 @@ void update(float dt)
     g_flashlight.setPos(flashlightPos);
     g_flashlight.setTarget(flashlightTarget);
 
+    CBulletManager::getInstance().update(dt);
 }
 
 void releaseAll()

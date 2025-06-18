@@ -8,12 +8,12 @@
 #include "arcball.h"
 #include "CMaterial.h"
 #include "CLight.h"
-#include "CButton.h"
 
 #include "../models/CQuad.h"
 #include "../models/CCube.h"
 #include "../models/CSphere.h"
 #include "../models/CTeapot.h"
+#include "CBulletManager.h"
 
 //#define SPOT_TARGET
 
@@ -210,10 +210,12 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
         break;
     case GLFW_KEY_SPACE: // 按下空白鍵使用道具
         if (action == GLFW_PRESS) {
-            if (!g_itemChange) {
+            if (!g_itemChange) { // 使用手電筒
                 g_flashlight.setLightOn(!g_flashlight.isLightOn());
-            }else{
-                // 使用手槍
+            }else{ // 使用手槍
+                CBulletManager::getInstance().instantiate(
+                    g_eyeloc - glm::vec3(0.0f, 1.0f, 0.0f), g_centerloc.getPos()
+                );
             }
         }
         break;
