@@ -44,6 +44,7 @@ void CBulletHoles::update() {
                 glm::scale(glm::mat4(1.0f), glm::vec3(bh.size));
 
             bh.quad->setTransformMatrix(model);
+            //bh.quad->setRotate(180, glm::vec3(0, 0, 1));
         }
     }
 }

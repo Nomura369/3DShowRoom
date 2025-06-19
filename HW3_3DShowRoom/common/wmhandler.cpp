@@ -199,7 +199,7 @@ void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods
                 g_flashlight.setLightOn(!g_flashlight.isLightOn());
             }else{ // ¨Ï¥Î¤âºj
                 CBulletManager::getInstance().instantiate(
-                    g_eyeloc - glm::vec3(0.0f, 1.0f, 0.0f), g_centerloc.getPos()
+                    g_eyeloc - glm::vec3(0.0f, 0.5f, 0.0f), g_centerloc.getPos()
                 );
             }
         }

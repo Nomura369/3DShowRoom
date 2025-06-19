@@ -83,7 +83,7 @@ std::array<CLight, ROOM_NUM> g_lights = {
     CLight (glm::vec3(-30.1f, 10.0f, -60.2f)),
 };
 // 手電筒，聚光燈形式（從略低於相機的位置出發，往視線前方照）
-CLight g_flashlight(glm::vec3(6.0f, 5.0f, 6.0f), glm::vec3(0.0f, 4.0f, 0.0f)); 
+CLight g_flashlight(glm::vec3(6.0f, 5.5f, 6.0f), glm::vec3(0.0f, 4.0f, 0.0f)); 
 
 // 全域材質（可依模型分別設定）
 CMaterial g_matBeige;   // 淺米白
@@ -97,7 +97,7 @@ CMaterial g_matWoodBleached;
 CMaterial g_matGlass;
 
 // 貼圖宣告區
-TextureData g_texData[7]; 
+TextureData g_texData[8]; 
 GLuint g_uiCubeMap; // 環境貼圖專用
 
 // 投影矩陣
@@ -152,6 +152,7 @@ void loadScene(void)
     g_texData[4] = CTexturePool::getInstance().getTexture("texture/wall_alpha.png", true); // 開啟 mipmap
     g_texData[5] = CTexturePool::getInstance().getTexture("texture/lightMap.png"); // lightmap
     g_texData[6] = CTexturePool::getInstance().getTexture("texture/normalMap.png", true); // normalmap
+    g_texData[7] = CTexturePool::getInstance().getTexture("texture/bulletHole.png"); // 不開啟 mipmap
     g_uiCubeMap = CubeMap_load_SOIL();
 
     // 設定模型
@@ -163,6 +164,7 @@ void loadScene(void)
         g_capsule[i].setScale(glm::vec3(1.5f, 1.5f, 1.5f));
         g_capsule[i].setMaterial(g_matWaterRed);
         g_capsule[i].setTextureMode(CShape::TEX_NONE);
+        CBulletManager::getInstance().addToCollision(&g_capsule[i]);
     }
     g_capsule[0].setPos(glm::vec3(-30.1f, 0.7f, -1.5f));
     g_capsule[1].setPos(glm::vec3(-30.1f, 0.7f, 1.5f));
@@ -174,6 +176,8 @@ void loadScene(void)
         g_cup[i].setScale(glm::vec3(1.5f, 1.5f, 1.5f));
         g_cup[i].setMaterial(g_matWaterBlue);
         g_cup[i].setTextureMode(CShape::TEX_CUBEMAP);
+        g_cup[i].setCollisionDist(2.0f);
+        CBulletManager::getInstance().addToCollision(&g_cup[i]);
     }
     g_cup[0].setPos(glm::vec3(3.0f, 0.1f, -30.1f));
     g_cup[1].setPos(glm::vec3(-1.5f, 0.1f, -30.1f + 2.598f));
@@ -185,6 +189,8 @@ void loadScene(void)
     g_objModel.setPos(glm::vec3(0.0f, 0.0005f, 0.0f)); // 房間1正中間
     g_objModel.setMaterial(g_matWoodLightOak);
     g_objModel.setTextureMode(CShape::TEX_DIFFUSE);
+    g_objModel.setCollisionDist(1.9f);
+    CBulletManager::getInstance().addToCollision(&g_objModel);
  
     for (int i = 0; i < 4; i++) {
         g_knot[i].setupVertexAttributes();
@@ -192,6 +198,7 @@ void loadScene(void)
         g_knot[i].setScale(glm::vec3(0.7f, 0.7f, 0.7f));
         g_knot[i].setMaterial(g_matWaterGreen);
         g_knot[i].setTextureMode(CShape::TEX_NONE);
+        CBulletManager::getInstance().addToCollision(&g_knot[i]);
     }
     g_knot[0].setPos(glm::vec3(-27.1f, 0.8f, -30.1f));
     g_knot[1].setPos(glm::vec3(-30.1f, 0.8f, -27.1f));
@@ -204,6 +211,7 @@ void loadScene(void)
         g_donut[i].setScale(glm::vec3(2.0f, 2.0f, 2.0f));
         g_donut[i].setMaterial(g_matWoodHoney);
         g_donut[i].setTextureMode(CShape::TEX_DIFFUSE);
+        CBulletManager::getInstance().addToCollision(&g_donut[i]);
     }
     g_donut[0].setPos(glm::vec3(4.0f, 0.3f, -60.2f));
     g_donut[1].setPos(glm::vec3(1.24f, 0.3f, -56.41f));
@@ -217,6 +225,8 @@ void loadScene(void)
         g_teapot[i].setScale(glm::vec3(0.65f, 0.65f, 0.65f));
         g_teapot[i].setMaterial(g_matGray);
         g_teapot[i].setTextureMode(CShape::TEX_NORMALMAP);
+        g_teapot[i].setCollisionDist(1.2f);
+        CBulletManager::getInstance().addToCollision(&g_teapot[i]);
         if (i >= 2 && i <= 4) {
             g_teapot[i].setRotate(180, glm::vec3(0, 1, 0));
         }
@@ -279,7 +289,7 @@ void loadScene(void)
 
             g_walls[idx].setupVertexAttributes();
             g_walls[idx].setShaderID(g_shadingProg, 3);
-            g_walls[idx].setScale(glm::vec3(30.0f, 12.0f, 30.0f));
+            g_walls[idx].setScale(glm::vec3(30.0f, 12.0f, 3.0f));
             g_walls[idx].setMaterial(g_matWoodBleached);
 
             glm::vec3 wallPos;
@@ -409,46 +419,58 @@ void render(void)
     }
 
     glBindTexture(GL_TEXTURE_2D, g_texData[2].id); // 綁定貼圖 
-    g_objModel.uploadMaterial();
-    g_objModel.uploadTextureFlags();
-    g_objModel.drawRaw();
+    if (g_objModel.getIsActive()) {
+        g_objModel.uploadMaterial();
+        g_objModel.uploadTextureFlags();
+        g_objModel.drawRaw();
+    }
 
     glBindTexture(GL_TEXTURE_2D, 0); // 不綁定貼圖
     for (int i = 0; i < 2; i++) {
-        g_capsule[i].uploadMaterial();
-        g_capsule[i].uploadTextureFlags();
-        g_capsule[i].drawRaw();
+        if (g_capsule[i].getIsActive()) {
+            g_capsule[i].uploadMaterial();
+            g_capsule[i].uploadTextureFlags();
+            g_capsule[i].drawRaw();
+        }
     }
 
     glActiveTexture(GL_TEXTURE3); // 啟用環境貼圖
     glBindTexture(GL_TEXTURE_CUBE_MAP, g_uiCubeMap); // 綁定貼圖
     for (int i = 0; i < 3; i++) {
-        g_cup[i].uploadMaterial();
-        g_cup[i].uploadTextureFlags();
-        g_cup[i].drawRaw();
+        if (g_cup[i].getIsActive()) {
+            g_cup[i].uploadMaterial();
+            g_cup[i].uploadTextureFlags();
+            g_cup[i].drawRaw();
+        }
     }
 
     glActiveTexture(GL_TEXTURE0); // 啟動一般貼圖
     glBindTexture(GL_TEXTURE_2D, 0); // 不綁定貼圖
     for (int i = 0; i < 4; i++) {
-        g_knot[i].uploadMaterial();
-        g_knot[i].uploadTextureFlags();
-        g_knot[i].drawRaw();
+        if (g_knot[i].getIsActive()) {
+            g_knot[i].uploadMaterial();
+            g_knot[i].uploadTextureFlags();
+            g_knot[i].drawRaw();
+        }
     }
 
     glBindTexture(GL_TEXTURE_2D, g_texData[3].id); // 綁定貼圖 
     for (int i = 0; i < 5; i++) {
-        g_donut[i].uploadMaterial();
-        g_donut[i].uploadTextureFlags();
-        g_donut[i].drawRaw();
+        if (g_donut[i].getIsActive()) {
+            g_donut[i].uploadMaterial();
+            g_donut[i].uploadTextureFlags();
+            g_donut[i].drawRaw();
+        }
     }
 
     glActiveTexture(GL_TEXTURE2); // 啟動 normalmap
     glBindTexture(GL_TEXTURE_2D, g_texData[6].id); // 綁定貼圖
     for (int i = 0; i < 6; i++) {
-        g_teapot[i].uploadMaterial();
-        g_teapot[i].uploadTextureFlags();
-        g_teapot[i].drawRaw();
+        if (g_teapot[i].getIsActive()) {
+            g_teapot[i].uploadMaterial();
+            g_teapot[i].uploadTextureFlags();
+            g_teapot[i].drawRaw();
+        }
     }
 
     // 開始畫半透明物體
@@ -463,15 +485,14 @@ void render(void)
             g_walls[i].drawRaw();
         }
     }
+    glBindTexture(GL_TEXTURE_2D, g_texData[7].id); // 綁定貼圖
+    CBulletHoles::getInstance().draw();
     // 結束半透明物體的繪製
     glDisable(GL_BLEND);// 關閉 Blending
     glDepthMask(GL_TRUE);// 開啟對 Z-Buffer 的寫入操作
 
     glBindTexture(GL_TEXTURE_2D, 0); // 不綁定貼圖
     CBulletManager::getInstance().draw();
-
-    glBindTexture(GL_TEXTURE_2D, 0); // 不綁定貼圖
-    CBulletHoles::getInstance().draw();
 
     // 開始畫半透明物體
     glEnable(GL_BLEND);
@@ -509,6 +530,10 @@ void update(float dt)
 
     CBulletHoles::getInstance().setCameraPos(camPos);
     CBulletHoles::getInstance().update();
+
+    // 檢查碰撞
+    CBulletManager::getInstance().checkCollision();
+    CBulletManager::getInstance().handleDeath();
 }
 
 void releaseAll()

@@ -1,4 +1,5 @@
 #pragma once
+#include <vector>
 #include "../models/CBullet.h"
 
 // 定義子彈管理器類別，主要利用鏈結串列控管所有子彈（Singleton pattern）
@@ -15,6 +16,10 @@ private:
 
 	GLuint _shaderProg;
 
+	std::vector<CShape*> _models;
+	float _cooldown; // 每次生成子彈的最小間隔（秒）
+	float _timer; // 累計時間
+
 public:
 	// 確保外部不得複製此類別的實例
 	CBulletManager(CBulletManager& other) = delete;
@@ -29,5 +34,7 @@ public:
 	void update(float dt); // 一次更新全部子彈的移動狀態
 	void handleDeath(); // 一次處理 _isActive == false 的子彈
 	~CBulletManager(); // 釋放鏈結串列
+	void addToCollision(CShape* model);
+	void checkCollision();
 	
 };

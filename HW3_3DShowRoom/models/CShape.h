@@ -52,6 +52,11 @@ public:
 	// 計算 tangent 與 bitangent，必須在模型基本資料完成後才能呼叫
 	void genTangentBitangent();
 
+	void setCollisionDist(float dist);
+	float getCollisionDist();
+	void setIsActive(bool isActive);
+	bool getIsActive();
+
 protected:
 	int _vtxCount, _vtxAttrCount, _idxCount; // 頂點數, 頂點屬性數,點頂索引值數
 	GLfloat* _points;
@@ -87,4 +92,7 @@ protected:
 	GLint _lightMapLoc;  // light map  對應貼圖單元的進入點
 	GLint _normalMapLoc; // normal map 對應貼圖單元的進入點
 	GLint _cubeMapLoc;  // cubic map 對應貼圖單元的進入點
+
+	float _collisionDist;
+	bool _isActive;
 };

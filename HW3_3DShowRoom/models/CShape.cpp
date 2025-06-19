@@ -27,6 +27,8 @@ CShape::CShape()
 	_bObjColor = false; // 預設不使用物件顏色
 	_shadingModeLoc = 0; // 上色模式的進入點
 	_diffMapLoc = -1;  _lightMapLoc = -1; _normalMapLoc = -1; _cubeMapLoc = -1;
+	_collisionDist = 1.0f;
+	_isActive = true;
 }
 
 CShape::~CShape()
@@ -332,4 +334,20 @@ void CShape::setTextureMode(int flags)
 void CShape::uploadTextureFlags()
 {
 	glUniform1i(_texFlagsLoc, _textureFlags);
+}
+
+float CShape::getCollisionDist() {
+	return _collisionDist;
+}
+
+void CShape::setCollisionDist(float dist) {
+	_collisionDist = dist;
+}
+
+void CShape::setIsActive(bool isActive) {
+	_isActive = isActive;
+}
+
+bool CShape::getIsActive() {
+	return _isActive;
 }

@@ -18,49 +18,78 @@ public:
 
     void setTargetPos(glm::vec3 targetPos);
     void updateDirection();
-    void setIsActive(bool isActive);
-    bool getIsActive();
 
 private:
     void generateSphere(float radius, GLuint sectors, GLuint stacks, GLuint pattern);
     glm::vec3 _targetPos, _direction, _userPos;
-    bool _isActive;
     
-    AABB walls[24] = {
+    AABB _walls[24] = {
         // Room 0
-        { glm::vec3(-15.0f, -0.05f, 14.90f), glm::vec3(15.0f, 11.95f, 15.00f) }, // front
-        { glm::vec3(14.90f, -0.05f, -15.0f), glm::vec3(15.00f, 11.95f, 15.0f) }, // right
-        { glm::vec3(-15.0f, -0.05f, -15.00f), glm::vec3(15.0f, 11.95f, -14.90f) }, // back
-        { glm::vec3(-15.00f, -0.05f, -15.0f), glm::vec3(-14.90f, 11.95f, 15.0f) }, // left
+        { glm::vec3(-15.0f, -0.1f, 13.45f), glm::vec3(15.0f, 11.95f, 16.45f) },  // front (Z=14.95±1.5)
+        { glm::vec3(13.45f, -0.1f, -15.0f), glm::vec3(16.45f, 11.95f, 15.0f) },  // right (X=14.95±1.5)
+        { glm::vec3(-15.0f, -0.1f, -16.45f), glm::vec3(15.0f, 11.95f, -13.45f) },// back  (Z=-14.95±1.5)
+        { glm::vec3(-16.45f, -0.1f, -15.0f), glm::vec3(-13.45f, 11.95f, 15.0f) },// left  (X=-14.95±1.5)
 
         // Room 1
-        { glm::vec3(-45.0f, -0.05f, 14.90f), glm::vec3(-15.0f, 11.95f, 15.00f) },
-        { glm::vec3(-15.10f, -0.05f, -15.0f), glm::vec3(-15.00f, 11.95f, 15.0f) },
-        { glm::vec3(-45.0f, -0.05f, -15.00f), glm::vec3(-15.0f, 11.95f, -14.90f) },
-        { glm::vec3(-45.00f, -0.05f, -15.0f), glm::vec3(-44.90f, 11.95f, 15.0f) },
+        { glm::vec3(-45.0f, -0.1f, 13.45f), glm::vec3(-15.0f, 11.95f, 16.45f) },
+        { glm::vec3(-16.45f, -0.1f, -15.0f), glm::vec3(-13.45f, 11.95f, 15.0f) },
+        { glm::vec3(-45.0f, -0.1f, -16.45f), glm::vec3(-15.0f, 11.95f, -13.45f) },
+        { glm::vec3(-46.45f, -0.1f, -15.0f), glm::vec3(-43.45f, 11.95f, 15.0f) },
 
         // Room 2
-        { glm::vec3(-15.0f, -0.05f, -15.10f), glm::vec3(15.0f, 11.95f, -15.00f) },
-        { glm::vec3(14.90f, -0.05f, -45.0f), glm::vec3(15.00f, 11.95f, -15.0f) },
-        { glm::vec3(-15.0f, -0.05f, -45.00f), glm::vec3(15.0f, 11.95f, -44.90f) },
-        { glm::vec3(-15.00f, -0.05f, -45.0f), glm::vec3(-14.90f, 11.95f, -15.0f) },
+        { glm::vec3(-15.0f, -0.1f, -16.45f), glm::vec3(15.0f, 11.95f, -13.45f) },
+        { glm::vec3(13.45f, -0.1f, -45.0f), glm::vec3(16.45f, 11.95f, -15.0f) },
+        { glm::vec3(-15.0f, -0.1f, -46.45f), glm::vec3(15.0f, 11.95f, -43.45f) },
+        { glm::vec3(-16.45f, -0.1f, -45.0f), glm::vec3(-13.45f, 11.95f, -15.0f) },
 
         // Room 3
-        { glm::vec3(-45.0f, -0.05f, -15.10f), glm::vec3(-15.0f, 11.95f, -15.00f) },
-        { glm::vec3(-15.10f, -0.05f, -45.0f), glm::vec3(-15.00f, 11.95f, -15.0f) },
-        { glm::vec3(-45.0f, -0.05f, -45.00f), glm::vec3(-15.0f, 11.95f, -44.90f) },
-        { glm::vec3(-45.00f, -0.05f, -45.0f), glm::vec3(-44.90f, 11.95f, -15.0f) },
+        { glm::vec3(-45.0f, -0.1f, -16.45f), glm::vec3(-15.0f, 11.95f, -13.45f) },
+        { glm::vec3(-16.45f, -0.1f, -45.0f), glm::vec3(-13.45f, 11.95f, -15.0f) },
+        { glm::vec3(-45.0f, -0.1f, -46.45f), glm::vec3(-15.0f, 11.95f, -43.45f) },
+        { glm::vec3(-46.45f, -0.1f, -45.0f), glm::vec3(-43.45f, 11.95f, -15.0f) },
 
         // Room 4
-        { glm::vec3(-15.0f, -0.05f, -45.10f), glm::vec3(15.0f, 11.95f, -45.00f) },
-        { glm::vec3(14.90f, -0.05f, -75.0f), glm::vec3(15.00f, 11.95f, -45.0f) },
-        { glm::vec3(-15.0f, -0.05f, -75.00f), glm::vec3(15.0f, 11.95f, -74.90f) },
-        { glm::vec3(-15.00f, -0.05f, -75.0f), glm::vec3(-14.90f, 11.95f, -45.0f) },
+        { glm::vec3(-15.0f, -0.1f, -46.45f), glm::vec3(15.0f, 11.95f, -43.45f) },
+        { glm::vec3(13.45f, -0.1f, -75.0f), glm::vec3(16.45f, 11.95f, -45.0f) },
+        { glm::vec3(-15.0f, -0.1f, -76.45f), glm::vec3(15.0f, 11.95f, -73.45f) },
+        { glm::vec3(-16.45f, -0.1f, -75.0f), glm::vec3(-13.45f, 11.95f, -45.0f) },
 
         // Room 5
-        { glm::vec3(-45.0f, -0.05f, -45.10f), glm::vec3(-15.0f, 11.95f, -45.00f) },
-        { glm::vec3(-15.10f, -0.05f, -75.0f), glm::vec3(-15.00f, 11.95f, -45.0f) },
-        { glm::vec3(-45.0f, -0.05f, -75.00f), glm::vec3(-15.0f, 11.95f, -74.90f) },
-        { glm::vec3(-45.00f, -0.05f, -75.0f), glm::vec3(-44.90f, 11.95f, -45.0f) },
+        { glm::vec3(-45.0f, -0.1f, -46.45f), glm::vec3(-15.0f, 11.95f, -43.45f) },
+        { glm::vec3(-16.45f, -0.1f, -75.0f), glm::vec3(-13.45f, 11.95f, -45.0f) },
+        { glm::vec3(-45.0f, -0.1f, -76.45f), glm::vec3(-15.0f, 11.95f, -73.45f) },
+        { glm::vec3(-46.45f, -0.1f, -75.0f), glm::vec3(-43.45f, 11.95f, -45.0f) },
+    };
+
+    AABB _floorsAndCeilings[12] = {
+        // Room 0 地板
+        { glm::vec3(-15.0f, -0.15f, -15.0f), glm::vec3(15.0f, -0.05f, 15.0f) },
+        // Room 0 天花板
+        { glm::vec3(-15.0f, 11.9f, -15.0f), glm::vec3(15.0f, 12.0f, 15.0f) },
+
+        // Room 1 地板
+        { glm::vec3(-45.0f, -0.15f, -15.0f), glm::vec3(-15.0f, -0.05f, 15.0f) },
+        // Room 1 天花板
+        { glm::vec3(-45.0f, 11.9f, -15.0f), glm::vec3(-15.0f, 12.0f, 15.0f) },
+
+        // Room 2 地板
+        { glm::vec3(-15.0f, -0.15f, -45.0f), glm::vec3(15.0f, -0.05f, -15.0f) },
+        // Room 2 天花板
+        { glm::vec3(-15.0f, 11.9f, -45.0f), glm::vec3(15.0f, 12.0f, -15.0f) },
+
+        // Room 3 地板
+        { glm::vec3(-45.0f, -0.15f, -45.0f), glm::vec3(-15.0f, -0.05f, -15.0f) },
+        // Room 3 天花板
+        { glm::vec3(-45.0f, 11.9f, -45.0f), glm::vec3(-15.0f, 12.0f, -15.0f) },
+
+        // Room 4 地板
+        { glm::vec3(-15.0f, -0.15f, -75.0f), glm::vec3(15.0f, -0.05f, -45.0f) },
+        // Room 4 天花板
+        { glm::vec3(-15.0f, 11.9f, -75.0f), glm::vec3(15.0f, 12.0f, -45.0f) },
+
+        // Room 5 地板
+        { glm::vec3(-45.0f, -0.15f, -75.0f), glm::vec3(-15.0f, -0.05f, -45.0f) },
+        // Room 5 天花板
+        { glm::vec3(-45.0f, 11.9f, -75.0f), glm::vec3(-15.0f, 12.0f, -45.0f) },
     };
 };
