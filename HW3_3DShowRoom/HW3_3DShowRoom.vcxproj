@@ -146,6 +146,7 @@
   <ItemGroup>
     <ClCompile Include="common\arcball.cpp" />
     <ClCompile Include="common\CAim.cpp" />
+    <ClCompile Include="common\CBulletHoles.cpp" />
     <ClCompile Include="common\CBulletManager.cpp" />
     <ClCompile Include="common\CCamera.cpp" />
     <ClCompile Include="common\CLight.cpp" />
@@ -172,8 +173,10 @@
     <ClCompile Include="3DShowRoom.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="common\AABB.h" />
     <ClInclude Include="common\arcball.h" />
     <ClInclude Include="common\CAim.h" />
+    <ClInclude Include="common\CBulletHoles.h" />
     <ClInclude Include="common\CBulletManager.h" />
     <ClInclude Include="common\CCamera.h" />
     <ClInclude Include="common\CLight.h" />

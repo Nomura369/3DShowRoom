@@ -7,12 +7,14 @@
 
 #include "CBullet.h"
 #include "../common/typedefs.h"
+#include "../common/CBulletHoles.h"
 
-// Constructor / Destructor
+
 CBullet::CBullet(float radius, GLuint sectors, GLuint stacks, GLuint pattern) : CShape() {
     generateSphere(radius, sectors, stacks, pattern);
     _targetPos = glm::vec3(0.0f, 0.0f, 0.0f);
     _direction = glm::vec3(0.0f, 0.0f, 0.0f);
+    _isActive = true;
 }
 
 CBullet::~CBullet() {
@@ -23,7 +25,6 @@ CBullet::~CBullet() {
     if (_idx)    delete[] _idx;
 }
 
-// Draw methods
 void CBullet::draw() {
     glUseProgram(_shaderProg);
     updateMatrix();
@@ -53,11 +54,13 @@ void CBullet::update(float dt) {
     setPos(_pos);
 
     // 限制子彈的位移範圍
-    //if (_pos.y > maxY) _isActive = false;
-    //else {
-    //    setPos(_pos);
-    //    _isActive = true;
-    //}
+    for (auto& wall : walls) {
+        if (wall.checkCollision(_pos, WALL_BULLET)) {
+            CBulletHoles::getInstance().addBulletHole(getShaderProgram(), _pos);
+            setIsActive(false);
+            break; // 子彈撞到牆就直接停，不用再繼續檢查
+        }
+    }
 }
 
 void CBullet::generateSphere(float radius, GLuint sectors, GLuint stacks, GLuint pattern) {
@@ -155,4 +158,12 @@ void CBullet::setTargetPos(glm::vec3 targetPos) {
 
 void CBullet::updateDirection() {
     _direction = glm::normalize(_targetPos - _pos);
+}
+
+void CBullet::setIsActive(bool isActive) {
+    _isActive = isActive;
+}
+
+bool CBullet::getIsActive() {
+    return _isActive;
 }

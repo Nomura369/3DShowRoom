@@ -14,6 +14,7 @@
 #include "../models/CSphere.h"
 #include "../models/CTeapot.h"
 #include "CBulletManager.h"
+#include "AABB.h"
 
 //#define SPOT_TARGET
 
@@ -37,25 +38,9 @@ extern bool g_itemChange;
 Arcball g_arcball; //保留未用
 
 // 空間邊界設定
-struct RoomAABB {
-    glm::vec3 roomMin; // 房間們的左下角（或最低點）
-    glm::vec3 roomMax; // 房間們的右上角（或最高點）
-
-    bool isInsideRoom(const glm::vec3& pos) {
-        if ((pos.x >= roomMin.x && pos.x <= roomMax.x) &&
-            (pos.y >= roomMin.y && pos.y <= roomMax.y) &&
-            (pos.z >= roomMin.z && pos.z <= roomMax.z)) {
-            return true;
-        }
-        else {
-            std::cout << "碰到牆了（如果移動鍵失靈可以先縮放後再試一次）" << std::endl << std::endl;
-            return false;
-        }  
-    }
-};
-RoomAABB allRooms = {
-    glm::vec3(-45.1f, -0.05f, -75.2f), // roomMin
-    glm::vec3(15.0f, 11.95f, 15.0f), // roomMax
+AABB allRooms = {
+    glm::vec3(-45.1f, -0.05f, -75.2f), // minPos
+    glm::vec3(15.0f, 11.95f, 15.0f), // maxPos
 };
 
 // 位移用函式（不然程式碼太雜了）
@@ -71,7 +56,7 @@ void moveForward(bool isForward) {
     glm::vec3 eyeloc = g_eyeloc + front * speed * direction;
     glm::vec3 centerloc = centerPos + front * speed * direction;
 
-    if (allRooms.isInsideRoom(eyeloc) && allRooms.isInsideRoom(centerloc)) {
+    if (!allRooms.checkCollision(eyeloc, ROOM_USER) && !allRooms.checkCollision(centerloc, ROOM_USER)) {
         g_eyeloc = eyeloc;
         g_centerloc.setPos(centerloc);
     }
@@ -96,7 +81,7 @@ void moveRight(bool isRight) {
     glm::vec3 eyeloc = g_eyeloc + right * speed * direction;
     glm::vec3 centerloc = centerPos + right * speed * direction;
 
-    if (allRooms.isInsideRoom(eyeloc) && allRooms.isInsideRoom(centerloc)) {
+    if (!allRooms.checkCollision(eyeloc, ROOM_USER) && !allRooms.checkCollision(centerloc, ROOM_USER)) {
         g_eyeloc = eyeloc;
         g_centerloc.setPos(centerloc);
     }

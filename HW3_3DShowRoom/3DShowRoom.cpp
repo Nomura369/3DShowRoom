@@ -37,6 +37,7 @@
 #include "common/png_loader.h"
 #include "common/CBulletManager.h"
 #include "common/CAim.h"
+#include "common/CBulletHoles.h"
 
 #define SCREEN_WIDTH  800
 #define SCREEN_HEIGHT 800
@@ -466,7 +467,11 @@ void render(void)
     glDisable(GL_BLEND);// 關閉 Blending
     glDepthMask(GL_TRUE);// 開啟對 Z-Buffer 的寫入操作
 
+    glBindTexture(GL_TEXTURE_2D, 0); // 不綁定貼圖
     CBulletManager::getInstance().draw();
+
+    glBindTexture(GL_TEXTURE_2D, 0); // 不綁定貼圖
+    CBulletHoles::getInstance().draw();
 
     // 開始畫半透明物體
     glEnable(GL_BLEND);
@@ -486,30 +491,6 @@ void render(void)
 
 void update(float dt)
 {
-    //g_light.setMotionEnabled(g_button[0].isActive()); // 讓點光源進行圓周運動
-    //g_capSpotLight.setLightOn(g_button[1].isActive());
-    //g_cupSpotLight.setLightOn(g_button[2].isActive());
-    //g_knotSpotLight.setLightOn(g_button[3].isActive());
-
-    //if (g_isGradient) {
-    //    float speed = 0.4f;
-    //    g_colorTime += dt * speed;
-
-    //    // 範圍 [0,1] 之間變化
-    //    float r = sin(g_colorTime * 2.0f) * 0.5f + 0.5f;
-    //    float g = sin(g_colorTime * 2.0f + 2.0f) * 0.5f + 0.5f;
-    //    float b = sin(g_colorTime * 2.0f + 4.0f) * 0.5f + 0.5f;
-
-    //    glm::vec4 colorAmbient = glm::vec4(r * 0.1f, g * 0.1f, b * 0.1f, 1.0f);
-    //    glm::vec4 colorDiffuse = glm::vec4(r * 0.8f, g * 0.8f, b * 0.8f, 1.0f);
-    //    glm::vec4 colorSpecular = glm::vec4(r * 1.0f, g * 1.0f, b * 1.0f, 1.0f);
-
-    //    g_light.setAmbient(colorAmbient);
-    //    g_light.setDiffuse(colorDiffuse);
-    //    g_light.setSpecular(colorSpecular);
-    //    g_light.updateToShader();
-    //}
-    
     for (int i = 0; i < ROOM_NUM; i++) {
         g_lights[i].update(dt);
     }
@@ -525,6 +506,9 @@ void update(float dt)
     g_flashlight.setTarget(flashlightTarget);
 
     CBulletManager::getInstance().update(dt);
+
+    CBulletHoles::getInstance().setCameraPos(camPos);
+    CBulletHoles::getInstance().update();
 }
 
 void releaseAll()

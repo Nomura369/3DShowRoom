@@ -5,7 +5,6 @@
 class CBulletManager
 {
 private:
-	static CBulletManager* instance;
 	CBulletManager(); // 建立鏈結串列
 
 	typedef struct TNode {
@@ -28,7 +27,7 @@ public:
 	void instantiate(glm::vec3 bulletPos, glm::vec3 targetPos); // 生成並設定子彈
 	void draw(); // 一次畫出鏈結串列中現有的全部子彈
 	void update(float dt); // 一次更新全部子彈的移動狀態
-	//void handleDeath(); // 一次處理 _isActive == false 的子彈
+	void handleDeath(); // 一次處理 _isActive == false 的子彈
 	~CBulletManager(); // 釋放鏈結串列
 	
 };

@@ -5,7 +5,6 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "CBulletManager.h"
-#include "../models/CShape.h"
 
 CBulletManager& CBulletManager::getInstance()
 {
@@ -60,37 +59,35 @@ void CBulletManager::update(float dt) { // 一次處理所有子彈
 	pGet = pHead;
 
 	while (pGet != nullptr) {
-		if (pGet->bullet != nullptr) {
-			pGet->bullet->update(dt);
+		pGet->bullet->update(dt);
+		pGet = pGet->Link;
+	}
+}
+
+void CBulletManager::handleDeath() { // 一次處理全部
+	PNODE prev = nullptr;
+	pGet = pHead;
+
+	// 理論上最先生成的會最先飛出房間 + 與裝飾物碰撞後會消失
+	while (pGet != nullptr) {
+		if (pGet->bullet != nullptr && !pGet->bullet->getIsActive()) {
+			PNODE toDelete = pGet;
+			if (prev == nullptr) {
+				pHead = pGet->Link;
+			}
+			else {
+				prev->Link = pGet->Link;
+			}
+			pGet = pGet->Link;
+			delete toDelete;
+			toDelete = nullptr;
+		}
+		else {
+			prev = pGet;
 			pGet = pGet->Link;
 		}
 	}
 }
-
-//void CBulletManager::handleDeath() { // 一次處理全部
-//	PNODE prev = nullptr;
-//	pGet = pHead;
-//
-//	// 理論上最先生成的會最先飛出視窗 + 與敵人碰撞後會消失
-//	while (pGet != nullptr) {
-//		if (pGet->bullet != nullptr && !pGet->bullet->getIsActive()) {
-//			PNODE toDelete = pGet;
-//			if (prev == nullptr) {
-//				pHead = pGet->Link;
-//			}
-//			else {
-//				prev->Link = pGet->Link;
-//			}
-//			pGet = pGet->Link;
-//			delete toDelete;
-//			toDelete = nullptr;
-//		}
-//		else {
-//			prev = pGet;
-//			pGet = pGet->Link;
-//		}
-//	}
-//}
 
 CBulletManager::~CBulletManager() {
 	while (pHead != nullptr) { //每次都先釋放最前面的

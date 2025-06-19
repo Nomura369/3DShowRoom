@@ -105,6 +105,9 @@
     <ClCompile Include="common\CAim.cpp">
       <Filter>common</Filter>
     </ClCompile>
+    <ClCompile Include="common\CBulletHoles.cpp">
+      <Filter>common</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common\arcball.h">
@@ -186,6 +189,12 @@
       <Filter>common</Filter>
     </ClInclude>
     <ClInclude Include="common\CAim.h">
+      <Filter>common</Filter>
+    </ClInclude>
+    <ClInclude Include="common\AABB.h">
+      <Filter>common</Filter>
+    </ClInclude>
+    <ClInclude Include="common\CBulletHoles.h">
       <Filter>common</Filter>
     </ClInclude>
   </ItemGroup>
